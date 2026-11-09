@@ -6,15 +6,19 @@ from . import analytics, exports
 from .auth import LoginThrottle, current_user, issue_token, public, require_manager, verify_password
 from .config import settings
 from .schemas import AssetIn, BreakdownIn, LoginIn, RejectionIn
-from .store import Store, WorkbookLocked, as_datetime, stop_time
+from .store import Store, stop_time
 
 router = APIRouter(prefix="/api")
 throttle = LoginThrottle(settings.max_login_failures, settings.lockout_seconds)
-LOCKED = "The workbook is open in another program. Close it and try again."
 
 
 def store(request: Request) -> Store:
     return request.app.state.store
+
+
+@router.get("/health")
+def health():
+    return {"ok": True}
 
 
 @router.post("/auth/login")
@@ -89,19 +93,16 @@ def list_assets(
 
 
 @router.post("/assets", status_code=201)
-def create_asset(body: AssetIn, s: Store = Depends(store), _=Depends(require_manager)):
+async def create_asset(body: AssetIn, s: Store = Depends(store), _=Depends(require_manager)):
     if body.installed > date.today():
         raise HTTPException(422, "Installation date can't be in the future.")
     classes = sorted(s.assets["cls"].unique())
     if body.cls not in classes:
         raise HTTPException(422, f"Class must be one of: {', '.join(classes)}.")
-    record = {**body.model_dump(), "installed": as_datetime(body.installed)}
     try:
-        s.add_asset(record)
+        await s.add_asset(body.model_dump())
     except KeyError:
         raise HTTPException(409, f"{body.id} already exists. Use {s.next_asset_id()}.")
-    except WorkbookLocked:
-        raise HTTPException(503, LOCKED)
     return {"id": body.id}
 
 
@@ -177,7 +178,7 @@ def list_breakdowns(
 
 
 @router.post("/breakdowns", status_code=201)
-def create_breakdown(body: BreakdownIn, s: Store = Depends(store), user=Depends(current_user)):
+async def create_breakdown(body: BreakdownIn, s: Store = Depends(store), user=Depends(current_user)):
     if body.date > date.today():
         raise HTTPException(422, "Breakdown date can't be in the future.")
     asset = s.asset(body.asset_id)
@@ -186,29 +187,23 @@ def create_breakdown(body: BreakdownIn, s: Store = Depends(store), user=Depends(
     categories = sorted(s.breakdowns["category"].unique())
     if body.category not in categories:
         raise HTTPException(422, f"Category must be one of: {', '.join(categories)}.")
-    stop = stop_time(body.start, body.total)
-    record = {
-        "date": as_datetime(body.date),
-        "name": asset["name"],
-        "id": body.asset_id,
+    start = body.start.replace(second=0, microsecond=0)
+    stop = stop_time(start, body.total)
+    await s.add_breakdown({
+        "date": body.date,
+        "asset_id": body.asset_id,
         "category": body.category,
         "problem": body.problem,
-        "start": body.start.replace(second=0, microsecond=0),
+        "start": start,
+        "stop": stop,
         "diagnose": body.diagnose,
         "spares": body.spares,
         "wrench": body.wrench,
-        "stop": stop,
-        "total": body.total,
         "remarks": body.description,
         "action": body.action,
-        "area": asset["area"],
         "entered_by": f"{user['id']} {user['name']}",
-    }
-    try:
-        s.add_breakdown(record)
-    except WorkbookLocked:
-        raise HTTPException(503, LOCKED)
-    return {"asset_id": body.asset_id, "date": body.date.isoformat(), "start": record["start"].strftime("%H:%M"), "stop": stop.strftime("%H:%M"), "minutes": body.total}
+    })
+    return {"asset_id": body.asset_id, "date": body.date.isoformat(), "start": start.strftime("%H:%M"), "stop": stop.strftime("%H:%M"), "minutes": body.total}
 
 
 @router.get("/rejections")
@@ -227,25 +222,18 @@ def list_rejections(
 
 
 @router.post("/rejections", status_code=201)
-def create_rejection(body: RejectionIn, s: Store = Depends(store), user=Depends(current_user)):
+async def create_rejection(body: RejectionIn, s: Store = Depends(store), user=Depends(current_user)):
     if body.date > date.today():
         raise HTTPException(422, "Date can't be in the future.")
-    asset = s.asset(body.asset_id)
-    if asset is None:
+    if s.asset(body.asset_id) is None:
         raise HTTPException(422, f"{body.asset_id} is not in the asset register.")
-    record = {
-        "date": as_datetime(body.date),
+    await s.add_rejection({
+        "date": body.date,
         "shift": body.shift,
-        "id": body.asset_id,
-        "name": asset["name"],
-        "area": asset["area"],
+        "asset_id": body.asset_id,
         "part": body.part,
         "defect": body.defect,
         "disposition": body.disposition,
         "entered_by": f"{user['id']} {user['name']}",
-    }
-    try:
-        s.add_rejection(record)
-    except WorkbookLocked:
-        raise HTTPException(503, LOCKED)
+    })
     return {"asset_id": body.asset_id, "date": body.date.isoformat(), "part": body.part}
