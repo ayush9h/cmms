@@ -3,11 +3,13 @@
 import { Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAuth } from "../../auth";
-import { PHASES, fmt, postJson, useJson } from "../../lib";
-import { Select } from "../../select";
-import { Field, FormFoot, FormSection, PageHead, TONE, banner, btn, btnQuiet, cx, formCard, pageMain, skeleton } from "../../ui";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/auth/provider";
+import { PHASES, shiftOf } from "@/lib/constants";
+import { fmt } from "@/lib/format";
+import { postJson, putJson } from "@/lib/api";
+import { useJson } from "@/lib/hooks";
+import { Field, FormFoot, FormSection, PageHead, Select, ShiftPicker, TONE, banner, btn, btnQuiet, cx, formCard, pageMain, skeleton } from "@/components/ui";
 
 const today = () => new Date().toLocaleDateString("en-CA");
 const nowTime = () => new Date().toTimeString().slice(0, 5);
@@ -21,15 +23,22 @@ function addMinutes(start, minutes) {
   return { clock, nextDay: total >= 1440 };
 }
 
-export function BreakdownForm() {
+export function BreakdownForm({ edit }) {
   const router = useRouter();
   const { user } = useAuth();
   const options = useJson("/api/options");
-  const [form, setForm] = useState(() => ({ date: today(), start: nowTime(), asset_id: "", category: "", problem: "", diagnose: "", spares: "", wrench: "", description: "", action: "" }));
+  const entry = useJson(edit ? `/api/breakdowns/${edit}` : null);
+  const [form, setForm] = useState(() => ({ date: today(), start: nowTime(), shift: shiftOf(nowTime()), asset_id: "", category: "", problem: "", diagnose: "", spares: "", wrench: "", description: "", action: "" }));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const set = (key) => (v) => setForm((f) => ({ ...f, [key]: v }));
   const bind = (key) => ({ name: key, value: form[key], onChange: (e) => set(key)(e.target.value) });
+
+  useEffect(() => {
+    const d = entry.data;
+    if (!d) return;
+    setForm({ date: d.date, start: d.start, shift: d.shift, asset_id: d.id, category: d.category, problem: d.problem, diagnose: String(d.diagnose), spares: String(d.spares), wrench: String(d.wrench), description: d.description, action: d.action });
+  }, [entry.data]);
 
   const minutes = { diagnose: toInt(form.diagnose), spares: toInt(form.spares), wrench: toInt(form.wrench) };
   const total = minutes.diagnose + minutes.spares + minutes.wrench;
@@ -47,7 +56,8 @@ export function BreakdownForm() {
     setSaving(true);
     setError(null);
     try {
-      const res = await postJson("/api/breakdowns", { ...form, ...minutes, description: form.description.trim(), action: form.action.trim() });
+      const body = { ...form, ...minutes, description: form.description.trim(), action: form.action.trim() };
+      const res = await (edit ? putJson(`/api/breakdowns/${edit}`, body) : postJson("/api/breakdowns", body));
       router.push(`/breakdowns?logged=${encodeURIComponent(`${res.asset_id}|${res.date}|${res.start}`)}`);
     } catch (err) {
       setError(err.message);
@@ -57,17 +67,19 @@ export function BreakdownForm() {
 
   return (
     <>
-      <PageHead title="Log breakdown" sub="Record a stoppage as soon as the machine is back in service." icon={Wrench} tone="bd">
+      <PageHead title={edit ? "Edit breakdown" : "Log breakdown"} sub={edit ? "Correct the details of a logged stoppage." : "Record a stoppage as soon as the machine is back in service."} icon={Wrench} tone="bd">
         <Link href="/breakdowns" className={btnQuiet}>Breakdown log</Link>
       </PageHead>
       <main className={pageMain}>
-        {options.error ? (
+        {entry.error ? (
+          <p className={banner} role="alert">Can’t open this entry: {entry.error.message} <Link href="/breakdowns" className="font-semibold underline">Back to the log</Link></p>
+        ) : options.error ? (
           <p className={banner} role="alert">Can’t reach the CMMS server: {options.error.message}.</p>
-        ) : !options.data ? (
+        ) : !options.data || (edit && !entry.data) ? (
           <div className={cx(formCard, "p-5")} role="status" aria-label="Loading form"><div className={skeleton} /></div>
         ) : (
           <form className={cx(formCard, TONE.bd.bar)} onSubmit={submit}>
-            <FormSection id="sec-when" title="When & where" sub="The machine that stopped and when the stoppage began." cols={3}>
+            <FormSection id="sec-when" title="When & where" sub="The machine that stopped, when the stoppage began and the shift it happened in." cols={4}>
               <Field as="div" label="Asset" hint={asset?.area}>
                 <Select
                   label="Asset"
@@ -84,7 +96,10 @@ export function BreakdownForm() {
                 <input {...bind("date")} type="date" required max={today()} />
               </Field>
               <Field label="Start time">
-                <input {...bind("start")} type="time" required />
+                <input name="start" value={form.start} onChange={(e) => setForm((f) => ({ ...f, start: e.target.value, shift: shiftOf(e.target.value) }))} type="time" required />
+              </Field>
+              <Field as="div" label="Shift" hint="Set from the start time; change it if needed.">
+                <ShiftPicker value={form.shift} onChange={set("shift")} />
               </Field>
             </FormSection>
 
@@ -119,9 +134,9 @@ export function BreakdownForm() {
               </Field>
             </FormSection>
 
-            <FormFoot error={error} note={`Logged as ${user.id} · ${user.name}`}>
+            <FormFoot error={error} note={edit ? `Logged by ${entry.data.entered_by || "import"}` : `Logged as ${user.id} · ${user.name}`}>
               <Link href="/breakdowns" className={btnQuiet}>Cancel</Link>
-              <button type="submit" className={btn} disabled={saving}>{saving ? "Saving…" : "Log breakdown"}</button>
+              <button type="submit" className={btn} disabled={saving}>{saving ? "Saving…" : edit ? "Save changes" : "Log breakdown"}</button>
             </FormFoot>
           </form>
         )}

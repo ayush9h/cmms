@@ -1,8 +1,8 @@
-import { Register } from "./register";
+import { AssetRegister } from "@/components/assets/asset-register";
 
 export const metadata = { title: "Assets" };
 
-export default async function AssetsPage({ searchParams }) {
+export default async function Page({ searchParams }) {
   const { created } = await searchParams;
-  return <Register created={typeof created === "string" ? created : undefined} />;
+  return <AssetRegister created={typeof created === "string" ? created : undefined} />;
 }

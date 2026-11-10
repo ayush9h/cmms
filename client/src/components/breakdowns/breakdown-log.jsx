@@ -1,14 +1,14 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Pencil } from "lucide-react";
 import { FileSpreadsheet, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useRef, useState } from "react";
-import { PHASES, fmt, plural, query, useDebounced, useJson } from "../lib";
-import { FilterBar, FilterMenu } from "../filters";
-import { Pager } from "../pager";
-import { Select } from "../select";
-import { ErrorState, ExportLink, PageHead, bannerOk, btn, cellMain, cellSub, cx, empty, formError, link, mono, num, pageMain, panel, skeleton, table } from "../ui";
+import { PHASES } from "@/lib/constants";
+import { fmt, plural } from "@/lib/format";
+import { query } from "@/lib/api";
+import { useDebounced, useJson } from "@/lib/hooks";
+import { Card, ErrorState, ExportLink, FilterBar, FilterMenu, PageHead, Pager, Select, bannerOk, btn, cellMain, cellSub, cx, empty, formError, link, mono, num, pageMain, skeleton, table } from "@/components/ui";
 
 const keyOf = (r) => `${r.id}|${r.date}|${r.start}`;
 const list = (values = []) => values.map((v) => ({ value: v, label: v }));
@@ -130,8 +130,7 @@ export function BreakdownLog({ logged }) {
             <button type="button" className={btn} onClick={() => setNonce((n) => n + 1)}>Retry</button>
           </ErrorState>
         ) : (
-          <section className={cx(panel, "scroll-mt-[88px]")} ref={panel} aria-labelledby="bd-h">
-            <h2 id="bd-h" className="sr-only">Breakdown log</h2>
+          <Card id="bd-h" title="Breakdown log" className="scroll-mt-[88px]" ref={panel}>
             <FilterBar
               label="Filter breakdowns"
               q={q}
@@ -146,16 +145,16 @@ export function BreakdownLog({ logged }) {
             ) : data.items.length ? (
               <>
                 <div className={cx("overflow-x-auto transition-opacity", busy && "opacity-55")} aria-busy={busy}>
-                  <table className={cx(table, "table-fixed min-w-[1040px] [&_th]:overflow-hidden [&_th]:text-ellipsis [&_td]:overflow-hidden")}>
+                  <table className={cx(table, "table-fixed min-w-[1072px] [&_th]:px-2! [&_td]:px-2! [&_th]:overflow-hidden [&_th]:text-ellipsis [&_td]:overflow-hidden")}>
                     <colgroup>
-                      <col className="w-[104px]" />
+                      <col className="w-[132px]" />
                       <col className="w-[176px]" />
-                      <col className="w-[100px]" />
+                      <col className="w-[96px]" />
                       <col />
                       <col />
-                      {PHASES.map((p) => <col key={p.key} className="w-[100px]" />)}
+                      {PHASES.map((p) => <col key={p.key} className="w-[96px]" />)}
                       <col className="w-[92px]" />
-                      <col className="w-10" />
+                      <col className="w-[76px]" />
                     </colgroup>
                     <thead>
                       <tr>
@@ -168,7 +167,7 @@ export function BreakdownLog({ logged }) {
                           <th key={p.key} scope="col" className={num}>{p.short}</th>
                         ))}
                         <th scope="col" className={num}>Downtime</th>
-                        <th scope="col"><span className="sr-only">Details</span></th>
+                        <th scope="col"><span className="sr-only">Edit and details</span></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -179,7 +178,7 @@ export function BreakdownLog({ logged }) {
                         return (
                           <Fragment key={key}>
                             <tr className={cx("cursor-pointer", isOpen ? "bg-panel-2 [&>td]:border-b-transparent" : keyOf(r) === logged ? "bg-brand-soft" : "hover:bg-hover")} onClick={toggle}>
-                              <td><span className={cellMain}>{fmt.day(r.date)}</span><span className={cx(cellSub, "font-mono")}>{r.start}–{r.stop}</span></td>
+                              <td><span className={cellMain}>{fmt.day(r.date)}</span><span className={cx(cellSub, "font-mono")}>{r.shift && `${r.shift} · `}{r.start}–{r.stop}</span></td>
                               <td><span className={cx(cellMain, "truncate")} title={r.name}>{r.name}</span><span className={cx(cellSub, "truncate")}><span className={mono}>{r.id}</span> · {r.area}</span></td>
                               <td><span className="block truncate" title={r.category}>{r.category}</span></td>
                               <td><span className={cx(cellMain, "truncate")} title={r.problem}>{r.problem}</span>{r.description && <span className={cx(cellSub, "truncate")}>{r.description}</span>}</td>
@@ -188,7 +187,10 @@ export function BreakdownLog({ logged }) {
                                 <td key={p.key} className={cx(num, "text-muted")}>{fmt.mins(r[p.key])}</td>
                               ))}
                               <td className={cx(num, "font-semibold")}>{fmt.mins(r.minutes)}</td>
-                              <td className="text-right">
+                              <td className="text-right whitespace-nowrap">
+                                <Link href={`/breakdowns/new?edit=${r.entry_id}`} onClick={(e) => e.stopPropagation()} className="inline-grid place-items-center size-7 -mt-[3px] rounded-md text-muted hover:bg-brand-soft hover:text-accent" aria-label={`Edit breakdown on ${r.name}, ${fmt.day(r.date)}`} title="Edit">
+                                  <Pencil size={14} strokeWidth={1.8} aria-hidden="true" />
+                                </Link>
                                 <button type="button" className="inline-grid place-items-center size-7 -mt-[3px] rounded-md text-muted hover:bg-hover hover:text-ink" aria-expanded={isOpen} aria-controls={`d-${i}`} aria-label={`${isOpen ? "Hide" : "Show"} details for ${r.name} on ${fmt.day(r.date)}`} onClick={(e) => { e.stopPropagation(); toggle(); }}>
                                   <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" className={cx("transition-[rotate] duration-150", isOpen && "rotate-180")} />
                                 </button>
@@ -220,7 +222,7 @@ export function BreakdownLog({ logged }) {
                 <button type="button" className={link} onClick={reset}>Clear filters</button>
               </div>
             )}
-          </section>
+          </Card>
         )}
       </main>
     </>

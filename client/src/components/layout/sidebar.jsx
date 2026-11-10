@@ -1,16 +1,25 @@
 "use client";
 
-import { Box, ChevronDown, Factory, LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, Plus, Wrench } from "lucide-react";
+import { Box, ChevronDown, ClipboardList, Factory, Gauge, LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, Plus, Wrench } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import { useAuth } from "./auth";
-import { Logo } from "./logo";
-import { ThemeSwitch } from "./theme";
-import { TONE, cx, iconBtn } from "./ui";
+import { useAuth } from "@/auth/provider";
+import { Logo } from "@/components/layout/logo";
+import { ThemeSwitch } from "@/components/layout/theme";
+import { TONE, cx, iconBtn } from "@/components/ui";
 
 const NAV = [
   { href: "/", label: "Dashboard", Icon: LayoutDashboard },
+  {
+    label: "OEE",
+    Icon: Gauge,
+    match: ["/oee"],
+    children: [
+      { href: "/oee", label: "Overview", hint: "Availability, performance and quality", Icon: Gauge },
+      { href: "/oee/ppc", label: "PPC", hint: "Shift production data that OEE is calculated from", Icon: ClipboardList },
+    ],
+  },
   {
     label: "Breakdowns",
     Icon: Wrench,
@@ -23,9 +32,9 @@ const NAV = [
   { href: "/assets", label: "Assets", Icon: Box },
 ];
 const DESKTOP = "(min-width: 861px)";
-const ITEM = "relative flex items-center justify-center gap-2.5 w-10 min-h-[38px] rounded-lg text-sm transition-colors md:w-auto";
-const ON = "bg-nav-active-bg text-nav-active-ink font-semibold md:before:absolute md:before:-left-3.5 md:before:inset-y-2 md:before:w-[3px] md:before:rounded-r-[3px] md:before:bg-brand";
-const OFF = "font-medium text-ink-2 hover:bg-ground hover:text-ink";
+const ITEM = "relative flex items-center justify-center gap-2.5 w-10 min-h-[38px] rounded-lg border text-sm transition-colors md:w-auto";
+const ON = "border-line bg-nav-active-bg text-nav-active-ink font-semibold shadow-card";
+const OFF = "border-transparent font-medium text-ink-2 hover:bg-line hover:text-ink";
 
 function NavGroup({ group, path, collapsed, label }) {
   const id = useId();
@@ -61,7 +70,7 @@ function NavGroup({ group, path, collapsed, label }) {
         title={collapsed ? group.label : undefined}
         className={cx(ITEM, "md:w-full", collapsed ? "md:px-0" : "md:justify-start md:px-2.5", inGroup ? ON : OFF)}
       >
-        <group.Icon size={18} strokeWidth={1.8} aria-hidden="true" className={cx("shrink-0", inGroup && "text-brand")} />
+        <group.Icon size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
         <span className={label}>{group.label}</span>
         <ChevronDown
           size={15}
@@ -72,7 +81,7 @@ function NavGroup({ group, path, collapsed, label }) {
       </button>
 
       {inline && (
-        <ul id={id} className="hidden md:grid gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line">
+        <ul id={id} className="hidden md:grid gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong">
           {group.children.map((c) => {
             const current = path === c.href;
             return (
@@ -87,7 +96,7 @@ function NavGroup({ group, path, collapsed, label }) {
                       : "font-medium text-ink-2 hover:text-ink hover:before:absolute hover:before:left-0 hover:before:inset-y-1 hover:before:w-0.5 hover:before:rounded-full hover:before:bg-line-strong",
                   )}
                 >
-                  <c.Icon size={15} strokeWidth={1.9} aria-hidden="true" className={cx("shrink-0", TONE[c.tone].text)} />
+                  <c.Icon size={15} strokeWidth={1.9} aria-hidden="true" className={cx("shrink-0", TONE[c.tone]?.text)} />
                   <span className="truncate">{c.label}</span>
                 </Link>
               </li>
@@ -113,9 +122,9 @@ function NavGroup({ group, path, collapsed, label }) {
               href={c.href}
               role="menuitem"
               aria-current={path === c.href ? "page" : undefined}
-              className={cx("flex items-start gap-3 p-2.5 rounded-lg", path === c.href ? "bg-nav-active-bg" : "hover:bg-ground")}
+              className={cx("flex items-start gap-3 p-2.5 rounded-lg", path === c.href ? "bg-shell" : "hover:bg-hover")}
             >
-              <span className={cx("grid place-items-center size-8 shrink-0 rounded-md", TONE[c.tone].badge)}>
+              <span className={cx("grid place-items-center size-8 shrink-0 rounded-md", TONE[c.tone]?.badge ?? "bg-shell text-ink-2")}>
                 <c.Icon size={16} strokeWidth={1.8} aria-hidden="true" />
               </span>
               <span className="grid">
@@ -165,12 +174,12 @@ export function Sidebar() {
   return (
     <aside
       className={cx(
-        "sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 py-2 border-b border-line bg-panel",
-        "md:flex-col md:items-stretch md:gap-0 md:h-screen md:p-0 md:border-b-0 md:border-r md:transition-[width] md:duration-200 md:ease-snap",
-        collapsed ? "md:w-[72px]" : "md:w-[256px]",
+        "sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 py-2 border-b border-line bg-panel md:bg-transparent",
+        "md:flex-col md:items-stretch md:gap-0 md:h-screen md:p-0 md:border-b-0 md:transition-[width] md:duration-200 md:ease-snap",
+        collapsed ? "md:w-[72px]" : "md:w-[260px]",
       )}
     >
-      <div className={cx("contents md:flex md:items-center md:gap-2 md:h-[72px] md:border-b md:border-line", collapsed ? "md:justify-center" : "md:justify-between md:pl-[22px] md:pr-3")}>
+      <div className={cx("contents md:flex md:items-center md:gap-2 md:h-[72px]", collapsed ? "md:justify-center" : "md:justify-between md:pl-5 md:pr-3")}>
         <Link href="/" className={cx("order-[-2] flex pr-1.5 md:order-none md:pr-0", collapsed && "md:hidden")} aria-label="OMR Bagla maintenance dashboard">
           <Logo className="hidden md:block w-[150px]" />
           <Logo className="md:hidden w-16" compact />
@@ -181,7 +190,7 @@ export function Sidebar() {
           aria-expanded={!collapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="group hidden md:grid place-items-center size-9 shrink-0 rounded-lg text-muted hover:bg-ground hover:text-ink"
+          className="group hidden md:grid place-items-center size-9 shrink-0 rounded-lg text-muted hover:bg-line hover:text-ink"
         >
           {collapsed && (
             <svg viewBox="0 0 32 32" aria-hidden="true" className="[grid-area:1/1] size-[30px] transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0">
@@ -194,10 +203,9 @@ export function Sidebar() {
         </button>
       </div>
 
-      <div className="contents md:flex md:flex-col md:gap-5 md:px-3.5 md:py-4">
-        
+      <div className="contents md:flex md:flex-col md:gap-5 md:px-3 md:pt-2 md:pb-4">
         <nav aria-labelledby="nav-h" className="grid gap-1.5">
-          <p id="nav-h" className={cx("hidden px-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted", !collapsed && "md:block")}>Menu</p>
+          <p id="nav-h" className={cx("hidden px-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-muted", !collapsed && "md:block")}>Menu</p>
           <ul className="grid grid-flow-col md:grid-flow-row md:grid-cols-[minmax(0,1fr)] gap-0.5">
             {NAV.map((n) => {
               if (n.children) return <NavGroup key={n.label} group={n} path={path} collapsed={collapsed} label={label} />;
@@ -211,7 +219,7 @@ export function Sidebar() {
                     aria-current={current ? "page" : undefined}
                     className={cx(ITEM, collapsed ? "md:px-0" : "md:justify-start md:px-2.5", current ? ON : OFF)}
                   >
-                    <Icon size={18} strokeWidth={1.8} aria-hidden="true" className={cx("shrink-0", current && "text-brand")} />
+                    <Icon size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                     <span className={label}>{name}</span>
                   </Link>
                 </li>
@@ -221,16 +229,16 @@ export function Sidebar() {
         </nav>
       </div>
 
-      <div className={cx("order-2 grid gap-2.5 md:order-none md:mt-auto md:border-t md:border-line", collapsed ? "md:justify-items-center md:py-3" : "md:p-3.5")}>
+      <div className={cx("order-2 grid gap-2.5 md:order-none md:mt-auto", collapsed ? "md:justify-items-center md:py-3" : "md:p-3")}>
         <ThemeSwitch className={cx("hidden", !collapsed && "md:grid")} />
-        <div className={cx("flex items-center gap-0.5 min-w-0 md:gap-2.5", collapsed && "md:flex-col md:gap-1.5")}>
-          <span className="hidden md:grid place-items-center size-8 shrink-0 rounded-full bg-brand-soft text-accent text-xs font-bold" aria-hidden="true">{initials(user.name)}</span>
+        <div className={cx("flex items-center gap-0.5 min-w-0 md:gap-2.5", collapsed ? "md:flex-col md:gap-1.5" : "md:p-2 md:rounded-xl md:border md:border-line md:bg-panel md:shadow-card")}>
+          <span className="hidden md:grid place-items-center size-8 shrink-0 rounded-lg bg-brand-soft text-accent text-xs font-bold" aria-hidden="true">{initials(user.name)}</span>
           <span className={cx("hidden flex-1 min-w-0", !collapsed && "md:grid")}>
             <span className="truncate text-[13px] font-semibold">{user.name}</span>
             <span className="truncate text-[11.5px] text-muted">{user.id} · {user.role === "manager" ? "Manager" : "Employee"}</span>
           </span>
           <ThemeSwitch compact className={collapsed ? undefined : "md:hidden"} />
-          <button type="button" className={iconBtn} onClick={() => logout()}aria-label="Sign out" title="Sign out">
+          <button type="button" className={iconBtn} onClick={() => logout()} aria-label="Sign out" title="Sign out">
             <LogOut size={18} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>

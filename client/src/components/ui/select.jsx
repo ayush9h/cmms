@@ -2,7 +2,7 @@
 
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
-import { cx } from "./ui";
+import { cx } from "./styles";
 
 export function Select({ label, value = "", options, onChange, placeholder, name, disabled, hideLabel, required, up, small, field, multiple, className }) {
   const id = useId();

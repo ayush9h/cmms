@@ -2,7 +2,7 @@
 
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cx, iconBtn } from "./ui";
+import { cx, iconBtn } from "@/components/ui";
 
 const KEY = "cmms.theme";
 const MODES = [
@@ -44,7 +44,7 @@ export function ThemeSwitch({ compact, labels, className }) {
   }
 
   return (
-    <div className={cx("grid-cols-3 gap-0.5 p-[3px] rounded-[9px] border border-line bg-panel-2", className ?? "grid")} role="group" aria-label="Theme">
+    <div className={cx("grid-cols-3 gap-0.5 p-[3px] rounded-[10px] border border-line bg-line/60", className ?? "grid")} role="group" aria-label="Theme">
       {MODES.map(({ value, label, Icon }) => (
         <button
           key={value}

@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useAuth } from "../auth";
-import { fmt, plural, query, useDebounced, useJson } from "../lib";
-import { FilterBar, FilterMenu } from "../filters";
-import { Pager } from "../pager";
-import { ErrorState, PageHead, bannerOk, btn, cellMain, cellSub, cx, empty, link, mono, num, pageMain, panel, skeleton, table } from "../ui";
+import { useAuth } from "@/auth/provider";
+import { fmt, plural } from "@/lib/format";
+import { query } from "@/lib/api";
+import { useDebounced, useJson } from "@/lib/hooks";
+import { Card, ErrorState, FilterBar, FilterMenu, PageHead, Pager, bannerOk, btn, cellMain, cellSub, cx, empty, link, mono, num, pageMain, skeleton, table } from "@/components/ui";
 
 const list = (values = []) => values.map((v) => ({ value: v, label: v }));
 
-export function Register({ created }) {
+export function AssetRegister({ created }) {
   const { isManager } = useAuth();
   const panel = useRef(null);
   const [nonce, setNonce] = useState(0);
@@ -63,8 +63,7 @@ export function Register({ created }) {
             <button type="button" className={btn} onClick={() => setNonce((n) => n + 1)}>Retry</button>
           </ErrorState>
         ) : (
-          <section className={cx(panel, "scroll-mt-[88px]")} ref={panel} aria-labelledby="reg-h">
-            <h2 id="reg-h" className="sr-only">All assets</h2>
+          <Card id="reg-h" title="All assets" className="scroll-mt-[88px]" ref={panel}>
             <FilterBar
               label="Filter assets"
               q={q}
@@ -98,13 +97,13 @@ export function Register({ created }) {
                         <tr key={a.id} className={a.id === created ? "bg-brand-soft" : "hover:bg-hover"}>
                           <td className={cx(mono, "whitespace-nowrap")}>{a.id}</td>
                           <td><span className={cellMain}>{a.name}</span><span className={cellSub}>{a.application}</span></td>
-                          <td>{a.area}</td>
+                          <td className="whitespace-nowrap">{a.area}</td>
                           <td>{a.cls}</td>
                           <td>{a.oem}</td>
-                          <td>{fmt.day(a.installed)}<span className={cellSub}>{fmt.n(a.age)} yr</span></td>
+                          <td className="whitespace-nowrap">{fmt.day(a.installed)}<span className={cellSub}>{fmt.n(a.age)} yr</span></td>
                           <td className={num}>{a.events}</td>
                           <td className={num}>{fmt.n(a.downtime_h)} h</td>
-                          <td>{fmt.day(a.last_bd)}</td>
+                          <td className="whitespace-nowrap">{fmt.day(a.last_bd)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -118,7 +117,7 @@ export function Register({ created }) {
                 <button type="button" className={link} onClick={reset}>Clear filters</button>
               </div>
             )}
-          </section>
+          </Card>
         )}
       </main>
     </>

@@ -1,12 +1,13 @@
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { PHASES, categorySlot, fmt, pct, plural } from "./lib";
-import { Head, cx, empty } from "./ui";
+import { PHASES, categorySlot } from "@/lib/constants";
+import { fmt, pct, plural } from "@/lib/format";
+import { Card, cx, empty } from "@/components/ui";
 
-const AXIS = { tickLine: false, axisLine: false, tick: { fontSize: 12 } };
+export const AXIS = { tickLine: false, axisLine: false, tick: { fontSize: 12 } };
 const EMPTY = <p className={empty}>No breakdowns match these filters.</p>;
 const hrs = (minutes) => `${fmt.n(Math.round(minutes / 6) / 10)} h`;
 
-function Tip({ active, payload, render }) {
+export function Tip({ active, payload, render }) {
   return active && payload?.length ? (
     <div className="grid gap-0.5 px-2.5 py-2 rounded-[5px] bg-tip-bg text-tip-ink text-[12.5px] leading-[1.35] tabular-nums shadow-pop [&_b]:font-semibold">
       {render(payload[0].payload)}
@@ -16,14 +17,14 @@ function Tip({ active, payload, render }) {
 
 export function MonthChart({ rows, selected, onPick }) {
   const peak = rows.reduce((a, b) => (b.downtime_h > a.downtime_h ? b : a), rows[0]);
+  const total = rows.reduce((s, r) => s + r.downtime_h, 0);
+  const events = rows.reduce((s, r) => s + r.events, 0);
   return (
-    <>
-      <Head
-        id="month-h"
-        title="Downtime by month"
-        sub="Hours lost per month. Select a bar to focus on that month."
-        meta={peak?.downtime_h > 0 && <>Peak <b>{fmt.month(peak.month)}</b> · {fmt.n(peak.downtime_h)} h</>}
-      />
+    <Card id="month-h" title="Downtime by month" className="h-full" meta={peak?.downtime_h > 0 && <>Peak <b>{fmt.month(peak.month)}</b> · {fmt.n(peak.downtime_h)} h</>}>
+      <p className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 mb-4">
+        <b className="text-[22px] font-semibold leading-[1.2] tracking-[-0.02em] tabular-nums">{fmt.n(total)} h</b>
+        <span className="text-[13px] text-muted">lost across {plural(events, "breakdown")}. Select a bar to focus on that month.</span>
+      </p>
       <div className="chart w-full tabular-nums">
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: -12 }}>
@@ -42,7 +43,7 @@ export function MonthChart({ rows, selected, onPick }) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </>
+    </Card>
   );
 }
 
@@ -52,8 +53,8 @@ function PieBlock({ id, title, sub, slices, selected = [], onPick, unit, caption
   const top = slices.reduce((a, b) => (b.value > a.value ? b : a), slices[0]);
   const row = "grid grid-cols-[12px_1fr_auto_40px] items-center gap-2.5 w-full min-h-9 px-2 rounded text-left text-sm";
   return (
-    <>
-      <Head id={id} title={title} sub={sub} meta={total > 0 && <>Largest <b>{top.name}</b> · {pct(top.value, total)}%</>} />
+    <Card id={id} title={title} className="h-full" meta={total > 0 && <>Largest <b>{top.name}</b> · {pct(top.value, total)}%</>}>
+      <p className="mb-3 text-[13px] text-muted">{sub}</p>
       {total ? (
         <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,1fr)_minmax(0,1.1fr)] items-center gap-4">
           <div className="chart relative tabular-nums">
@@ -108,7 +109,7 @@ function PieBlock({ id, title, sub, slices, selected = [], onPick, unit, caption
           </ul>
         </div>
       ) : EMPTY}
-    </>
+    </Card>
   );
 }
 

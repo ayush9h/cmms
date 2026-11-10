@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Select } from "./select";
-import { cx } from "./ui";
+import { cx } from "./styles";
 
 const SIZES = [25, 50, 100].map((n) => ({ value: String(n), label: String(n) }));
 const BTN = "grid place-items-center min-w-[34px] h-[34px] px-2 rounded-lg border text-[13.5px] tabular-nums disabled:opacity-40 disabled:cursor-not-allowed";

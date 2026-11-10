@@ -1,4 +1,4 @@
-import { cx } from "./ui";
+import { cx } from "@/components/ui";
 
 export function Logo({ className, label, compact }) {
   const a11y = label ? { role: "img", "aria-label": label } : { "aria-hidden": true };

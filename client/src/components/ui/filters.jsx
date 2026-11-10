@@ -3,7 +3,7 @@
 import { ListFilter, Search, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Select } from "./select";
-import { cx } from "./ui";
+import { cx } from "./styles";
 
 const isSet = (v) => [v].flat().some(Boolean);
 const blank = (f) => (f.multi ? [] : "");
@@ -34,7 +34,7 @@ export function FilterMenu({ fields, value, onChange, onClear, align = "left" })
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
         className={cx(
-          "inline-flex items-center gap-2 h-10 px-3.5 rounded-md border text-sm font-semibold shadow-card",
+          "inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border text-sm font-semibold shadow-card",
           open ? "border-chip-line bg-brand-soft text-accent" : "border-line bg-panel text-ink-2 hover:border-line-strong hover:text-ink",
         )}
       >

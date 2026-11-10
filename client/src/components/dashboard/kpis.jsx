@@ -1,27 +1,31 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useId } from "react";
-import { fmt, plural, useCountUp } from "./lib";
-import { cx, shimmer } from "./ui";
+import { fmt, plural } from "@/lib/format";
+import { useCountUp } from "@/lib/hooks";
+import { cx, shell, shimmer } from "@/components/ui";
 
 const KPIS = [
-  { key: "downtime_h", label: "Downtime", unit: "h", digits: 1, better: -1, note: (k, total) => `${k.assets_hit} of ${plural(total, "asset")} affected` },
-  { key: "events", label: "Breakdowns", digits: 0, better: -1, note: () => "Logged in the period" },
+  { key: "downtime_h", label: "Downtime", unit: "h", digits: 1, better: -1, note: (k, total) => `${k.assets_hit} of ${plural(total, "asset")}` },
+  { key: "events", label: "Breakdowns", digits: 0, better: -1, note: () => "Logged in period" },
   { key: "mttr_min", label: "MTTR", unit: "min", digits: 0, better: -1, note: () => "Mean time to repair" },
-  { key: "mtbf_h", label: "MTBF", unit: "h", digits: 1, better: 1, note: () => "Mean time between failures, 24 h run" },
+  { key: "mtbf_h", label: "MTBF", unit: "h", digits: 1, better: 1, note: () => "Mean time between failures" },
 ];
-const GRID = "grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mb-4";
-const CARD = "grid grid-cols-[1fr_auto] items-center px-3.5 pt-3.5 pb-2.5 sm:px-5 sm:pt-[18px] sm:pb-3.5 rounded-xl border border-line bg-panel shadow-card animate-rise";
-const TONE = { good: "bg-good-bg text-good-ink", bad: "bg-bad-bg text-bad-ink", flat: "bg-ground text-muted" };
+const GRID = "grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3";
+const HEAD = "flex items-center justify-between gap-2 min-h-8 px-2.5 pb-1.5";
+const BODY = "rounded-xl border border-line bg-panel shadow-card p-4";
+const TONE = { good: "text-good-ink", bad: "text-bad-ink", flat: "text-muted" };
 const bone = cx("block h-3 my-1 rounded-md", shimmer);
 
 export function KpiSkeleton() {
   return (
     <div className={GRID}>
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className={cx(CARD, "block")}>
-          <span className={cx(bone, "w-2/5")} />
-          <span className={cx(bone, "w-[55%] h-[30px] my-2.5")} />
-          <span className={cx(bone, "w-[70%]")} />
+        <div key={i} className={shell}>
+          <div className={HEAD}><span className={cx(bone, "w-2/5")} /></div>
+          <div className={BODY}>
+            <span className={cx(bone, "w-[55%] h-[30px] mb-3")} />
+            <span className={cx(bone, "w-[70%]")} />
+          </div>
         </div>
       ))}
     </div>
@@ -32,15 +36,16 @@ export function Kpis({ kpi, monthly, month, total }) {
   const current = new Date().toISOString().slice(0, 7);
   const ref = month ? (month < current ? monthly.findIndex((m) => m.month === month) : -1) : monthly.findLastIndex((m) => m.month < current && m.events);
   return (
-    <dl className={GRID}>
+    <div className={GRID}>
       {KPIS.map((k, i) => (
         <Kpi key={k.key} index={i} spec={k} value={kpi[k.key]} note={k.note(kpi, total)} monthly={monthly} refIndex={ref} />
       ))}
-    </dl>
+    </div>
   );
 }
 
 function Kpi({ index, spec, value, note, monthly, refIndex }) {
+  const id = useId();
   const shown = useCountUp(value);
   const cur = monthly[refIndex]?.[spec.key];
   const prev = monthly[refIndex - 1]?.[spec.key];
@@ -49,25 +54,31 @@ function Kpi({ index, spec, value, note, monthly, refIndex }) {
   const Arrow = change > 0 ? ArrowUp : ArrowDown;
 
   return (
-    <div className={CARD} style={{ animationDelay: `${index * 40}ms` }}>
-      <dt className="text-[13px] font-semibold text-ink-2">{spec.label}</dt>
-      <dd className="col-span-2 mt-1.5">
-        <span className="text-[clamp(26px,2.3vw,32px)] font-[650] leading-[1.1] tracking-[-0.03em] tabular-nums">{shown == null ? "—" : fmt.n(Number(shown.toFixed(spec.digits)))}</span>
-        {spec.unit && value != null && <span className="ml-1 text-sm font-medium text-muted">{spec.unit}</span>}
-      </dd>
-      {change != null && (
-        <dd className={cx("col-start-2 row-start-1 justify-self-end inline-flex items-center gap-1 pl-1.5 pr-2 py-0.5 rounded-full text-xs font-[650] whitespace-nowrap", TONE[tone])}>
-          <Arrow size={12} strokeWidth={2} aria-hidden="true" />
-          <span>
-            {Math.round(Math.abs(change) * 100)}%
-            <span className="hidden sm:inline font-medium opacity-80"> {fmt.month(monthly[refIndex].month)} vs {fmt.month(monthly[refIndex - 1].month)}</span>
-          </span>
-        </dd>
-      )}
-      <dd className="col-span-2 mt-0.5 text-[12.5px] text-muted">{note}</dd>
-      <dd className="col-span-2 mt-3">
+    <div className={cx(shell, "animate-rise")} style={{ animationDelay: `${index * 40}ms` }} role="group" aria-labelledby={id}>
+      <div className={HEAD}>
+        <p id={id} className="text-[13px] font-medium text-ink-2">{spec.label}</p>
+        <p className="hidden sm:block min-w-0 truncate text-xs text-muted">{note}</p>
+      </div>
+      <div className={cx(BODY, "grid grid-cols-[auto_minmax(0,1fr)] items-end gap-x-4 gap-y-2.5")}>
+        <p className="whitespace-nowrap">
+          <span className="text-[clamp(24px,2.2vw,30px)] font-semibold leading-[1.1] tracking-[-0.03em] tabular-nums">{shown == null ? "—" : fmt.n(Number(shown.toFixed(spec.digits)))}</span>
+          {spec.unit && value != null && <span className="ml-1 text-sm font-medium text-muted">{spec.unit}</span>}
+        </p>
         <Spark values={monthly.map((m) => m[spec.key])} at={refIndex} />
-      </dd>
+        <p className="col-span-2 flex items-center gap-1 text-[12.5px] text-muted tabular-nums">
+          {change == null ? (
+            "No earlier month to compare"
+          ) : (
+            <>
+              <span className={cx("inline-flex items-center gap-0.5 font-semibold", TONE[tone])}>
+                <Arrow size={13} strokeWidth={2} aria-hidden="true" />
+                {Math.round(Math.abs(change) * 100)}%
+              </span>
+              {fmt.month(monthly[refIndex].month)} vs {fmt.month(monthly[refIndex - 1].month)}
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }
@@ -86,7 +97,7 @@ function Spark({ values, at }) {
   const dot = values[at] != null ? [x(at), y(values[at])] : null;
 
   return (
-    <span className="relative block h-9" aria-hidden="true">
+    <span className="relative hidden sm:block h-9 w-full max-w-[150px] justify-self-end" aria-hidden="true">
       <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="block size-full overflow-visible">
         <defs>
           <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">

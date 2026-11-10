@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "../../auth";
-import { fmt, postJson, useJson } from "../../lib";
-import { Select } from "../../select";
-import { ErrorState, Field, FormFoot, FormSection, PageHead, banner, btn, btnQuiet, cx, formCard, mono, pageMain, skeleton } from "../../ui";
+import { useAuth } from "@/auth/provider";
+import { fmt } from "@/lib/format";
+import { postJson } from "@/lib/api";
+import { useJson } from "@/lib/hooks";
+import { ErrorState, Field, FormFoot, FormSection, PageHead, Select, banner, btn, btnQuiet, cx, formCard, mono, pageMain, skeleton } from "@/components/ui";
 
 const today = () => new Date().toLocaleDateString("en-CA");
-const EMPTY = { name: "", area: "", cls: "", application: "", oem: "", installed: "" };
+const EMPTY = { name: "", area: "", cls: "", application: "", oem: "", installed: "", run_rate: "" };
 
 export function NewAssetForm() {
   const { isManager } = useAuth();
@@ -48,7 +49,7 @@ function AssetForm() {
     setSaving(true);
     setError(null);
     try {
-      const res = await postJson("/api/assets", { id: assetId, ...form });
+      const res = await postJson("/api/assets", { id: assetId, ...form, run_rate: Number(form.run_rate) });
       router.push(`/assets?created=${encodeURIComponent(res.id)}`);
     } catch (err) {
       setError(err.message);
@@ -69,12 +70,15 @@ function AssetForm() {
           <div className={cx(formCard, "p-5")} role="status" aria-label="Loading form"><div className={skeleton} /></div>
         ) : (
           <form className={formCard} onSubmit={submit}>
-            <FormSection id="sec-id" title="Identity" sub="How the asset is referenced across the plant." cols={2}>
+            <FormSection id="sec-id" title="Identity" sub="How the asset is referenced across the plant." cols={3}>
               <Field label="Asset ID" hint="Next free ID is filled in. Format AST-000.">
                 <input name="id" required pattern="AST-\d{3,}" value={assetId} onChange={(e) => setId(e.target.value.toUpperCase())} className={mono} />
               </Field>
               <Field label="Asset name">
                 <input {...bind("name")} required minLength={2} maxLength={80} placeholder="e.g. Laser Cutter 01" autoFocus />
+              </Field>
+              <Field label="Ideal run rate (PPM)" hint="Pieces per minute. Fills the PPC entry for OEE.">
+                <input {...bind("run_rate")} type="number" inputMode="decimal" step="any" min={0.001} max={100000} required placeholder="e.g. 60" />
               </Field>
             </FormSection>
 

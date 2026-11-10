@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AuthProvider, useAuth } from "./auth";
-import { Logo } from "./logo";
-import { Sidebar } from "./sidebar";
+import { AuthProvider, useAuth } from "@/auth/provider";
+import { Logo } from "@/components/layout/logo";
+import { Sidebar } from "@/components/layout/sidebar";
 
 function Gate({ children }) {
   const path = usePathname();
@@ -27,9 +27,9 @@ function Gate({ children }) {
     );
   }
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[auto_minmax(0,1fr)] min-h-screen">
+    <div className="grid grid-cols-1 md:grid-cols-[auto_minmax(0,1fr)] min-h-screen md:h-screen">
       <Sidebar />
-      <div className="min-w-0">{children}</div>
+      <div className="min-w-0 bg-canvas md:my-2 md:mr-2 md:rounded-2xl md:border md:border-line md:shadow-card md:overflow-y-auto">{children}</div>
     </div>
   );
 }

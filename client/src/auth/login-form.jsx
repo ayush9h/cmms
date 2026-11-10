@@ -3,10 +3,10 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuth } from "../auth";
-import { Logo } from "../logo";
-import { ThemeSwitch } from "../theme";
-import { Field, btnBase, cx, formError, mono } from "../ui";
+import { useAuth } from "@/auth/provider";
+import { Logo } from "@/components/layout/logo";
+import { ThemeSwitch } from "@/components/layout/theme";
+import { Field, btnBase, cx, formError, mono, shell } from "@/components/ui";
 
 const DEMO = [
   { id: "MGR001", name: "Maintenance Manager", role: "Manager", password: "Manager@123" },
@@ -15,6 +15,7 @@ const DEMO = [
   { id: "EMP101", name: "Technician 1", role: "Employee", password: "Tech@123" },
   { id: "EMP102", name: "Technician 2", role: "Employee", password: "Tech@123" },
 ];
+const HEAD = "flex items-center justify-between gap-3 min-h-8 px-2.5 pb-1.5";
 const POINTS = [
   "Plant reliability at a glance: downtime, MTTR and MTBF",
   "Daily breakdown entry by the shop-floor team",
@@ -50,16 +51,13 @@ export function LoginForm({ next }) {
   const Toggle = show ? EyeOff : Eye;
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)]">
+    <div className="grid min-h-screen lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.2fr)]">
       <section
-        className="hidden lg:flex flex-col justify-between gap-8 py-12 px-[clamp(28px,4vw,64px)] border-r border-line bg-panel text-ink"
+        className="hidden lg:flex flex-col justify-between gap-8 py-10 px-[clamp(28px,3.5vw,56px)] text-ink"
         aria-hidden="true"
       >
         <Logo className="w-[220px]" />
-        <div>
-          <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-accent">Maintenance</p>
-          <p className="max-w-[18ch] mt-3 text-[clamp(28px,3vw,40px)] font-[650] leading-[1.15] tracking-[-0.025em]">Every breakdown logged. Every hour of downtime accounted for.</p>
-        </div>
+        <p className="max-w-[22ch] text-[clamp(26px,2.5vw,34px)] font-semibold leading-[1.15] tracking-[-0.03em] text-balance">Every breakdown logged. Every hour of downtime accounted for.</p>
         <ul className="grid gap-3 text-sm text-ink-2">
           {POINTS.map((p) => (
             <li key={p} className="flex gap-2.5 before:size-1.5 before:mt-2 before:shrink-0 before:rounded-full before:bg-brand">{p}</li>
@@ -67,12 +65,15 @@ export function LoginForm({ next }) {
         </ul>
       </section>
 
-      <main className="relative grid content-center justify-items-center gap-6 px-6 pt-6 pb-10 sm:pt-[72px]">
-        <ThemeSwitch labels className="grid w-full max-w-[380px] sm:absolute sm:top-5 sm:right-6 sm:w-60" />
-        <form className="grid gap-4 w-full max-w-[380px] p-6 sm:p-8 rounded-2xl border border-line bg-panel shadow-pop" onSubmit={submit}>
-          <Logo className="lg:hidden w-[170px]" label="OMR Bagla Automotive Systems India Ltd." />
-          <h1 className="mt-1 text-xl font-[650] leading-[1.2] tracking-[-0.015em]">Sign in</h1>
-          <p className="-mt-3 text-[13px] text-muted">Use your employee or manager ID.</p>
+      <main className="relative grid content-center justify-items-center gap-3 px-4 pt-6 pb-10 sm:pt-[72px] bg-canvas lg:my-2 lg:mr-2 lg:rounded-2xl lg:border lg:border-line lg:shadow-card">
+        <ThemeSwitch labels className="grid w-full max-w-[400px] mb-3 sm:mb-0 sm:absolute sm:top-5 sm:right-5 sm:w-60" />
+        <div className={cx(shell, "w-full max-w-[400px]")}>
+          <div className={HEAD}>
+            <h1 className="text-[13px] font-medium text-ink-2">Sign in</h1>
+            <p className="text-xs text-muted">Employee or manager ID</p>
+          </div>
+          <form className="grid gap-4 p-5 sm:p-6 rounded-xl border border-line bg-panel shadow-card" onSubmit={submit}>
+          <Logo className="lg:hidden w-[170px] mb-1" label="OMR Bagla Automotive Systems India Ltd." />
           <Field label="User ID">
             <input name="user_id" autoComplete="username" required value={userId} onChange={(e) => setUserId(e.target.value.toUpperCase())} placeholder="e.g. EMP101" className={mono} autoFocus />
           </Field>
@@ -92,26 +93,30 @@ export function LoginForm({ next }) {
           </Field>
           {error && <p className={formError} role="alert">{error}</p>}
           <button type="submit" className={cx(btnBase, "w-full min-h-[42px] px-4")} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-        </form>
+          </form>
+        </div>
 
-        <section className="w-full max-w-[380px]" aria-labelledby="demo-h">
-          <h2 id="demo-h" className="text-[13px] font-semibold">Demo accounts</h2>
-          <p className="mt-0.5 mb-2.5 text-[12.5px] text-muted">Placeholder IDs for the pilot. Managers can register assets; everyone can log breakdowns.</p>
-          <ul className="grid divide-y divide-line overflow-hidden rounded-[10px] border border-line bg-panel">
+        <section className={cx(shell, "w-full max-w-[400px]")} aria-labelledby="demo-h">
+          <div className={HEAD}>
+            <h2 id="demo-h" className="text-[13px] font-medium text-ink-2">Demo accounts</h2>
+            <p className="text-xs text-muted">Select one to fill the form</p>
+          </div>
+          <ul className="grid divide-y divide-line overflow-hidden rounded-xl border border-line bg-panel shadow-card">
             {DEMO.map((d) => (
               <li key={d.id}>
                 <button
                   type="button"
                   onClick={() => { setUserId(d.id); setPassword(d.password); setError(null); }}
-                  className="grid grid-cols-[72px_1fr_auto] items-center gap-2.5 w-full min-h-10 px-3 text-left text-[13px] hover:bg-hover"
+                  className="grid grid-cols-[72px_1fr_auto] items-center gap-2.5 w-full min-h-11 px-3.5 text-left text-[13px] hover:bg-hover"
                 >
                   <span className={mono}>{d.id}</span>
                   <span>{d.name}</span>
-                  <span className={cx("px-2 py-px rounded-full border text-[11.5px] font-semibold", d.role === "Manager" ? "border-chip-line bg-brand-soft text-accent" : "border-line bg-panel-2 text-muted")}>{d.role}</span>
+                  <span className={cx("px-2 py-px rounded-full border text-[11.5px] font-semibold", d.role === "Manager" ? "border-chip-line bg-brand-soft text-accent" : "border-line bg-shell text-muted")}>{d.role}</span>
                 </button>
               </li>
             ))}
           </ul>
+          <p className="px-2.5 pt-2 pb-1 text-xs text-muted">Placeholder IDs for the pilot. Managers can register assets; everyone can log breakdowns.</p>
         </section>
       </main>
     </div>

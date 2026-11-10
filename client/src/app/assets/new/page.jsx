@@ -1,7 +1,7 @@
-import { NewAssetForm } from "./form";
+import { NewAssetForm } from "@/components/assets/asset-form";
 
 export const metadata = { title: "New asset" };
 
-export default function NewAssetPage() {
+export default function Page() {
   return <NewAssetForm />;
 }

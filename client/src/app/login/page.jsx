@@ -1,4 +1,4 @@
-import { LoginForm } from "./form";
+import { LoginForm } from "@/auth/login-form";
 
 export const metadata = { title: "Sign in" };
 
