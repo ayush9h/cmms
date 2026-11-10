@@ -1,11 +1,3 @@
-"""create cmms tables
-
-Revision ID: a1c4e7b2d9f0
-Revises:
-Create Date: 2026-11-09 16:00:00.000000
-
-"""
-
 from typing import Sequence, Union
 
 import sqlalchemy as sa
@@ -19,7 +11,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
     op.create_table(
         "assets",
         sa.Column("id", sa.String(length=20), nullable=False),
@@ -75,7 +66,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
     op.drop_table("rejections")
     op.drop_table("breakdowns")
     op.drop_table("assets")

@@ -15,7 +15,7 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
 from .analytics import scope
-from .store import Store
+from .store import CAUSES, Store
 
 LOGO = Path(__file__).parent / "assets" / "omr-mark.png"
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -31,10 +31,7 @@ PHASES = [("diagnose", "Diagnosis", "2A78D6"), ("spares", "Spares arrangement", 
 FONT = "Segoe UI"
 
 
-def _sheet(title, columns, rows):
-    wb = Workbook()
-    ws = wb.active
-    ws.title = title
+def write_table(ws, columns, rows):
     ws.append([c[0] for c in columns])
     for row in rows:
         ws.append(row)
@@ -51,39 +48,51 @@ def _sheet(title, columns, rows):
     ws.row_dimensions[1].height = 22
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = ws.dimensions
+
+
+def to_bytes(wb):
     out = BytesIO()
     wb.save(out)
     return out.getvalue()
 
 
+def single_sheet(title, columns, rows):
+    wb = Workbook()
+    wb.active.title = title
+    write_table(wb.active, columns, rows)
+    return to_bytes(wb)
+
+
 def breakdowns_xlsx(df: pd.DataFrame):
     columns = [
-        ("Date", 12, "yyyy-mm-dd"), ("Start", 8, None), ("Stop", 8, None), ("Asset ID", 10, None), ("Asset", 28, None),
+        ("Date", 12, "yyyy-mm-dd"), ("Shift", 7, None), ("Start", 8, None), ("Stop", 8, None), ("Asset ID", 10, None), ("Asset", 28, None),
         ("Shop", 14, None), ("Category", 13, None), ("Problem", 28, None), ("Problem description", 48, None),
         ("Action taken", 48, None), ("Diagnosis (min)", 15, "0"), ("Spares wait (min)", 17, "0"),
         ("Wrench time (min)", 17, "0"), ("Downtime (min)", 15, "0"), ("Logged by", 26, None),
     ]
     rows = [
-        [r.date.to_pydatetime(), r.start, r.stop, r.id, r.name, r.area, r.category, r.problem, r.remarks, r.action,
+        [r.date.to_pydatetime(), r.shift, r.start, r.stop, r.id, r.name, r.area, r.category, r.problem, r.remarks, r.action,
          int(r.diagnose), int(r.spares), int(r.wrench), int(r.minutes), r.entered_by or "Imported"]
         for r in df.itertuples()
     ]
-    return _sheet("Breakdowns", columns, rows)
+    return single_sheet("Breakdowns", columns, rows)
 
 
 def rejections_xlsx(df: pd.DataFrame):
     columns = [
         ("Date", 12, "yyyy-mm-dd"), ("Shift", 7, None), ("Asset ID", 10, None), ("Machine", 28, None), ("Shop", 14, None),
-        ("Part", 28, None), ("Defect", 20, None), ("Disposition", 12, None), ("Logged by", 26, None),
+        ("Part", 28, None), ("Produced", 11, "#,##0"), *((label, 14, "#,##0") for _, label in CAUSES),
+        ("Total rejected", 14, "#,##0"), ("Rejection %", 12, "0.0%"), ("Defect", 20, None), ("Disposition", 12, None), ("Logged by", 26, None),
     ]
     rows = [
-        [r.date.to_pydatetime(), r.shift, r.id, r.name, r.area, r.part, r.defect, r.disposition, r.entered_by]
+        [r.date.to_pydatetime(), r.shift, r.id, r.name, r.area, r.part, int(r.produced), *(int(getattr(r, k)) for k, _ in CAUSES),
+         int(r.rejected), r.rejected / r.produced if r.produced else None, r.defect, r.disposition, r.entered_by]
         for r in df.itertuples()
     ]
-    return _sheet("Rejections", columns, rows)
+    return single_sheet("Rejections", columns, rows)
 
 
-def _text(slide, x, y, w, h, text, size=14, bold=False, color=INK, align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP):
+def add_text(slide, x, y, w, h, text, size=14, bold=False, color=INK, align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP):
     box = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = box.text_frame
     tf.word_wrap = True
@@ -100,21 +109,21 @@ def _text(slide, x, y, w, h, text, size=14, bold=False, color=INK, align=PP_ALIG
     return box
 
 
-def _slide(prs, title, sub):
+def new_slide(prs, title, sub):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
-    _text(slide, 0.6, 0.45, 10.5, 0.6, title, 28, True)
-    _text(slide, 0.6, 1.05, 10.5, 0.4, sub, 13, color=MUTED)
+    add_text(slide, 0.6, 0.45, 10.5, 0.6, title, 28, True)
+    add_text(slide, 0.6, 1.05, 10.5, 0.4, sub, 13, color=MUTED)
     slide.shapes.add_picture(str(LOGO), Inches(11.55), Inches(0.5), height=Inches(0.5))
     return slide
 
 
-def _flat(shape):
+def no_shadow(shape):
     shape.shadow.inherit = False
     return shape
 
 
-def _card(slide, x, y, w, h):
-    card = _flat(slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h)))
+def add_card(slide, x, y, w, h):
+    card = no_shadow(slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h)))
     card.adjustments[0] = 0.06
     card.fill.solid()
     card.fill.fore_color.rgb = PANEL
@@ -122,19 +131,19 @@ def _card(slide, x, y, w, h):
     return card
 
 
-def _style_chart(chart):
+def style_chart(chart):
     chart.has_title = False
     chart.font.name = FONT
     chart.font.size = Pt(12)
     chart.font.color.rgb = MUTED
 
 
-def _doughnut(slide, names, values, colors, unit):
+def add_doughnut(slide, names, values, colors, unit):
     data = CategoryChartData()
     data.categories = names
     data.add_series("Share", values)
     chart = slide.shapes.add_chart(XL_CHART_TYPE.DOUGHNUT, Inches(0.6), Inches(1.7), Inches(6.2), Inches(5.3), data).chart
-    _style_chart(chart)
+    style_chart(chart)
     chart.has_legend = False
     plot = chart.plots[0]
     plot.has_data_labels = True
@@ -149,13 +158,13 @@ def _doughnut(slide, names, values, colors, unit):
     total = sum(values) or 1
     for i, (name, value, color) in enumerate(zip(names, values, colors)):
         y = 2.2 + i * 0.62
-        dot = _flat(slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.4), Inches(y + 0.07), Inches(0.22), Inches(0.22)))
+        dot = no_shadow(slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.4), Inches(y + 0.07), Inches(0.22), Inches(0.22)))
         dot.fill.solid()
         dot.fill.fore_color.rgb = RGBColor.from_string(color)
         dot.line.fill.background()
-        _text(slide, 7.8, y, 2.9, 0.4, name, 15)
-        _text(slide, 10.3, y, 1.4, 0.4, unit(value), 15, color=MUTED, align=PP_ALIGN.RIGHT)
-        _text(slide, 11.8, y, 0.9, 0.4, f"{round(value / total * 100)}%", 15, True, align=PP_ALIGN.RIGHT)
+        add_text(slide, 7.8, y, 2.9, 0.4, name, 15)
+        add_text(slide, 10.3, y, 1.4, 0.4, unit(value), 15, color=MUTED, align=PP_ALIGN.RIGHT)
+        add_text(slide, 11.8, y, 0.9, 0.4, f"{round(value / total * 100)}%", 15, True, align=PP_ALIGN.RIGHT)
 
 
 def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
@@ -171,16 +180,16 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
 
     cover = prs.slides.add_slide(prs.slide_layouts[6])
     cover.shapes.add_picture(str(LOGO), Inches(0.8), Inches(0.8), height=Inches(0.9))
-    _text(cover, 0.8, 2.6, 11.5, 1.0, "Maintenance reliability review", 40, True)
-    _text(cover, 0.8, 3.6, 11.5, 0.5, applied, 18, color=MUTED)
-    _text(cover, 0.8, 4.1, 11.5, 0.5, period, 18, color=MUTED)
-    bar = _flat(cover.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(5.0), Inches(1.2), Inches(0.08)))
+    add_text(cover, 0.8, 2.6, 11.5, 1.0, "Maintenance reliability review", 40, True)
+    add_text(cover, 0.8, 3.6, 11.5, 0.5, applied, 18, color=MUTED)
+    add_text(cover, 0.8, 4.1, 11.5, 0.5, period, 18, color=MUTED)
+    bar = no_shadow(cover.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(5.0), Inches(1.2), Inches(0.08)))
     bar.fill.solid()
     bar.fill.fore_color.rgb = RGBColor.from_string(BRAND)
     bar.line.fill.background()
-    _text(cover, 0.8, 6.6, 11.5, 0.4, f"OMR Bagla Automotive Systems India Ltd.  ·  Generated {date.today():%d %b %Y}", 12, color=MUTED)
+    add_text(cover, 0.8, 6.6, 11.5, 0.4, f"OMR Bagla Automotive Systems India Ltd.  ·  Generated {date.today():%d %b %Y}", 12, color=MUTED)
 
-    slide = _slide(prs, "Headline numbers", sub)
+    slide = new_slide(prs, "Headline numbers", sub)
     tiles = [
         ("Downtime", f"{kpi['downtime_h']:,.1f}", "h", f"{kpi['assets_hit']} of {kpi['assets_total']} assets affected"),
         ("Breakdowns", f"{kpi['events']:,}", "", "Logged in the period"),
@@ -189,10 +198,10 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
     ]
     for i, (label, value, unit, note) in enumerate(tiles):
         x = 0.6 + i * 3.08
-        _card(slide, x, 1.8, 2.85, 2.3)
-        _text(slide, x + 0.3, 2.05, 2.3, 0.4, label, 15, True, MUTED)
-        _text(slide, x + 0.3, 2.6, 2.3, 0.9, f"{value} {unit}".strip(), 36, True)
-        _text(slide, x + 0.3, 3.5, 2.3, 0.5, note, 12, color=MUTED)
+        add_card(slide, x, 1.8, 2.85, 2.3)
+        add_text(slide, x + 0.3, 2.05, 2.3, 0.4, label, 15, True, MUTED)
+        add_text(slide, x + 0.3, 2.6, 2.3, 0.9, f"{value} {unit}".strip(), 36, True)
+        add_text(slide, x + 0.3, 3.5, 2.3, 0.5, note, 12, color=MUTED)
     worst = max(data["monthly"], key=lambda m: m["downtime_h"], default=None)
     biggest = max(data["categories"], key=lambda c: c["minutes"], default=None)
     total_min = sum(c["minutes"] for c in data["categories"]) or 1
@@ -206,17 +215,17 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
     ]
     for i, (label, head, note) in enumerate(takeaways):
         x = 0.6 + i * 4.11
-        _card(slide, x, 4.45, 3.88, 2.15)
-        _text(slide, x + 0.3, 4.7, 3.3, 0.4, label, 13, True, MUTED)
-        _text(slide, x + 0.3, 5.15, 3.3, 0.8, head, 20, True)
-        _text(slide, x + 0.3, 6.0, 3.3, 0.4, note, 12, color=MUTED)
+        add_card(slide, x, 4.45, 3.88, 2.15)
+        add_text(slide, x + 0.3, 4.7, 3.3, 0.4, label, 13, True, MUTED)
+        add_text(slide, x + 0.3, 5.15, 3.3, 0.8, head, 20, True)
+        add_text(slide, x + 0.3, 6.0, 3.3, 0.4, note, 12, color=MUTED)
 
-    slide = _slide(prs, "Downtime by month", sub)
+    slide = new_slide(prs, "Downtime by month", sub)
     chart_data = CategoryChartData()
     chart_data.categories = [pd.Timestamp(f"{m['month']}-01").strftime("%b %y") for m in data["monthly"]]
     chart_data.add_series("Downtime (h)", [m["downtime_h"] for m in data["monthly"]])
     chart = slide.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.6), Inches(1.7), Inches(12.1), Inches(5.4), chart_data).chart
-    _style_chart(chart)
+    style_chart(chart)
     chart.has_legend = False
     plot = chart.plots[0]
     plot.gap_width = 70
@@ -232,22 +241,22 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
     chart.category_axis.format.line.color.rgb = LINE
     chart.value_axis.tick_labels.font.size = Pt(11)
 
-    slide = _slide(prs, "Downtime by breakdown category", sub)
+    slide = new_slide(prs, "Downtime by breakdown category", sub)
     cats = sorted(data["categories"], key=lambda c: -c["minutes"])
     if any(c["minutes"] for c in cats):
         order = sorted(c["name"] for c in data["categories"])
-        _doughnut(slide, [c["name"] for c in cats], [c["minutes"] for c in cats], [CATS[order.index(c["name"]) % 6] for c in cats], hrs)
+        add_doughnut(slide, [c["name"] for c in cats], [c["minutes"] for c in cats], [CATS[order.index(c["name"]) % 6] for c in cats], hrs)
     else:
-        _text(slide, 0.6, 3.5, 12, 0.6, "No breakdowns match these filters.", 18, color=MUTED)
+        add_text(slide, 0.6, 3.5, 12, 0.6, "No breakdowns match these filters.", 18, color=MUTED)
 
-    slide = _slide(prs, "Where repair time goes", sub)
+    slide = new_slide(prs, "Where repair time goes", sub)
     phases = [(label, kpi["phases"][key], color) for key, label, color in PHASES]
     if sum(v for _, v, _ in phases):
-        _doughnut(slide, [p[0] for p in phases], [p[1] for p in phases], [p[2] for p in phases], hrs)
+        add_doughnut(slide, [p[0] for p in phases], [p[1] for p in phases], [p[2] for p in phases], hrs)
     else:
-        _text(slide, 0.6, 3.5, 12, 0.6, "No repair time in this selection.", 18, color=MUTED)
+        add_text(slide, 0.6, 3.5, 12, 0.6, "No repair time in this selection.", 18, color=MUTED)
 
-    slide = _slide(prs, "Machines with the most downtime", sub)
+    slide = new_slide(prs, "Machines with the most downtime", sub)
     if len(top):
         table = slide.shapes.add_table(len(top) + 1, 6, Inches(0.6), Inches(1.75), Inches(12.1), Inches(0.42 * (len(top) + 1))).table
         widths = [0.6, 1.3, 4.6, 2.0, 1.7, 1.9]
@@ -269,7 +278,7 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
                 run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) if r == 0 else INK
                 cell.vertical_anchor = MSO_ANCHOR.MIDDLE
     else:
-        _text(slide, 0.6, 3.5, 12, 0.6, "No breakdowns match these filters.", 18, color=MUTED)
+        add_text(slide, 0.6, 3.5, 12, 0.6, "No breakdowns match these filters.", 18, color=MUTED)
 
     out = BytesIO()
     prs.save(out)

@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from . import analytics, exports
 from .auth import LoginThrottle, current_user, issue_token, public, require_manager, verify_password
 from .config import settings
-from .schemas import AssetIn, BreakdownIn, LoginIn, RejectionIn
-from .store import Store, stop_time
+from .schemas import AssetIn, BreakdownIn, LoginIn, PpcIn, RejectionIn
+from .db_service.models import Breakdown, PpcEntry, Rejection
+from .store import CAUSES, Store, stop_time
 
 router = APIRouter(prefix="/api")
 throttle = LoginThrottle(settings.max_login_failures, settings.lockout_seconds)
@@ -74,6 +75,18 @@ def dashboard(
     return analytics.dashboard(s, {"area": area, "category": category, "month": month, "asset": asset})
 
 
+@router.get("/oee")
+def oee(
+    area: list[str] = many(),
+    month: str | None = Query(None, pattern=r"^\d{4}-\d{2}$"),
+    asset: list[str] = many(),
+    shift: list[str] = many(),
+    s: Store = Depends(store),
+    _=Depends(current_user),
+):
+    return analytics.oee(s, {"area": area, "month": month, "asset": asset, "shift": shift})
+
+
 PAGE = Query(1, ge=1)
 PAGE_SIZE = Query(25, ge=1, le=200)
 SEARCH = Query(None, max_length=80)
@@ -96,9 +109,6 @@ def list_assets(
 async def create_asset(body: AssetIn, s: Store = Depends(store), _=Depends(require_manager)):
     if body.installed > date.today():
         raise HTTPException(422, "Installation date can't be in the future.")
-    classes = sorted(s.assets["cls"].unique())
-    if body.cls not in classes:
-        raise HTTPException(422, f"Class must be one of: {', '.join(classes)}.")
     try:
         await s.add_asset(body.model_dump())
     except KeyError:
@@ -177,33 +187,58 @@ def list_breakdowns(
     return analytics.breakdown_page(s, q, area, category, asset, date_from, date_to, page, page_size)
 
 
-@router.post("/breakdowns", status_code=201)
-async def create_breakdown(body: BreakdownIn, s: Store = Depends(store), user=Depends(current_user)):
+def breakdown_record(body: BreakdownIn, s: Store):
     if body.date > date.today():
         raise HTTPException(422, "Breakdown date can't be in the future.")
-    asset = s.asset(body.asset_id)
-    if asset is None:
+    if s.asset(body.asset_id) is None:
         raise HTTPException(422, f"{body.asset_id} is not in the asset register.")
-    categories = sorted(s.breakdowns["category"].unique())
-    if body.category not in categories:
-        raise HTTPException(422, f"Category must be one of: {', '.join(categories)}.")
     start = body.start.replace(second=0, microsecond=0)
-    stop = stop_time(start, body.total)
-    await s.add_breakdown({
+    return {
         "date": body.date,
         "asset_id": body.asset_id,
+        "shift": body.shift,
         "category": body.category,
         "problem": body.problem,
         "start": start,
-        "stop": stop,
+        "stop": stop_time(start, body.total),
         "diagnose": body.diagnose,
         "spares": body.spares,
         "wrench": body.wrench,
         "remarks": body.description,
         "action": body.action,
-        "entered_by": f"{user['id']} {user['name']}",
-    })
-    return {"asset_id": body.asset_id, "date": body.date.isoformat(), "start": start.strftime("%H:%M"), "stop": stop.strftime("%H:%M"), "minutes": body.total}
+    }
+
+
+def breakdown_saved(record):
+    return {"asset_id": record["asset_id"], "date": record["date"].isoformat(), "start": record["start"].strftime("%H:%M")}
+
+
+def found(item):
+    if item is None:
+        raise HTTPException(404, "That entry no longer exists.")
+    return item
+
+
+@router.get("/breakdowns/{entry_id:int}")
+def get_breakdown(entry_id: int, s: Store = Depends(store), _=Depends(current_user)):
+    return found(analytics.entry(s.breakdowns, entry_id, analytics.breakdown_item))
+
+
+@router.post("/breakdowns", status_code=201)
+async def create_breakdown(body: BreakdownIn, s: Store = Depends(store), user=Depends(current_user)):
+    record = breakdown_record(body, s)
+    await s.add_breakdown({**record, "entered_by": f"{user['id']} {user['name']}"})
+    return breakdown_saved(record)
+
+
+@router.put("/breakdowns/{entry_id:int}")
+async def update_breakdown(entry_id: int, body: BreakdownIn, s: Store = Depends(store), _=Depends(current_user)):
+    record = breakdown_record(body, s)
+    try:
+        await s.update(Breakdown, entry_id, record)
+    except KeyError:
+        found(None)
+    return breakdown_saved(record)
 
 
 @router.get("/rejections")
@@ -221,19 +256,78 @@ def list_rejections(
     return analytics.rejection_page(s, q, area, asset, defect, disposition, page, page_size)
 
 
-@router.post("/rejections", status_code=201)
-async def create_rejection(body: RejectionIn, s: Store = Depends(store), user=Depends(current_user)):
+def rejection_record(body: RejectionIn, s: Store):
     if body.date > date.today():
         raise HTTPException(422, "Date can't be in the future.")
     if s.asset(body.asset_id) is None:
         raise HTTPException(422, f"{body.asset_id} is not in the asset register.")
-    await s.add_rejection({
+    return {
         "date": body.date,
         "shift": body.shift,
         "asset_id": body.asset_id,
         "part": body.part,
-        "defect": body.defect,
-        "disposition": body.disposition,
-        "entered_by": f"{user['id']} {user['name']}",
-    })
+        **body.model_dump(include={"produced", *(key for key, _ in CAUSES)}),
+        "defect": body.defect if body.rejected else "",
+        "disposition": body.disposition if body.rejected else "",
+    }
+
+
+@router.get("/rejections/{entry_id:int}")
+def get_rejection(entry_id: int, s: Store = Depends(store), _=Depends(current_user)):
+    return found(analytics.entry(s.rejections, entry_id, analytics.rejection_item))
+
+
+@router.post("/rejections", status_code=201)
+async def create_rejection(body: RejectionIn, s: Store = Depends(store), user=Depends(current_user)):
+    await s.add_rejection({**rejection_record(body, s), "entered_by": f"{user['id']} {user['name']}"})
     return {"asset_id": body.asset_id, "date": body.date.isoformat(), "part": body.part}
+
+
+@router.put("/rejections/{entry_id:int}")
+async def update_rejection(entry_id: int, body: RejectionIn, s: Store = Depends(store), _=Depends(current_user)):
+    try:
+        await s.update(Rejection, entry_id, rejection_record(body, s))
+    except KeyError:
+        found(None)
+    return {"asset_id": body.asset_id, "date": body.date.isoformat(), "part": body.part}
+
+
+def ppc_record(body: PpcIn, s: Store, user, entry_id=None):
+    if s.asset(body.asset_id) is None:
+        raise HTTPException(422, f"{body.asset_id} is not in the asset register.")
+    p = s.ppc_entries
+    clash = (p["id"] == body.asset_id) & (p["date_from"] <= str(body.date_to)) & (p["date_to"] >= str(body.date_from)) & (p["entry_id"] != entry_id)
+    if clash.any():
+        raise HTTPException(409, f"{body.asset_id} already has a PPC entry that overlaps these dates.")
+    return {
+        **body.model_dump(exclude={"shift_hours", "running"}),
+        "running": body.running_json(),
+        "shift_minutes": body.shift_minutes,
+        "entered_by": f"{user['id']} {user['name']}",
+    }
+
+
+@router.get("/ppc/find")
+def find_ppc(
+    asset_id: str = Query(pattern=r"^AST-\d{3,}$"),
+    date_from: date = Query(),
+    date_to: date = Query(),
+    s: Store = Depends(store),
+    _=Depends(current_user),
+):
+    return analytics.ppc_find(s, asset_id, date_from, date_to)
+
+
+@router.post("/ppc", status_code=201)
+async def create_ppc(body: PpcIn, s: Store = Depends(store), user=Depends(current_user)):
+    await s.add_ppc(ppc_record(body, s, user))
+    return {"asset_id": body.asset_id, "date": body.date_from.isoformat()}
+
+
+@router.put("/ppc/{entry_id}")
+async def update_ppc(entry_id: int, body: PpcIn, s: Store = Depends(store), user=Depends(current_user)):
+    try:
+        await s.update(PpcEntry, entry_id, ppc_record(body, s, user, entry_id))
+    except KeyError:
+        raise HTTPException(404, "That PPC entry no longer exists.")
+    return {"asset_id": body.asset_id, "date": body.date_from.isoformat()}

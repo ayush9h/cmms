@@ -14,3 +14,4 @@ class Asset(SQLModel, table=True):
     installed: dt.date
     application: str = Field(max_length=60)
     cls: str = Field(max_length=40)
+    run_rate: float | None = None

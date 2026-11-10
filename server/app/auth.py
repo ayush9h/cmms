@@ -16,10 +16,10 @@ ROLES = ("employee", "manager")
 class Users:
     def __init__(self, path):
         records = json.loads(path.read_text(encoding="utf-8"))
-        self._by_id = {u["id"].upper(): u for u in records}
+        self.by_id = {u["id"].upper(): u for u in records}
 
     def get(self, user_id):
-        return self._by_id.get(user_id.strip().upper())
+        return self.by_id.get(user_id.strip().upper())
 
 
 def verify_password(password: str, encoded: str) -> bool:
@@ -36,22 +36,22 @@ def verify_password(password: str, encoded: str) -> bool:
 class LoginThrottle:
     def __init__(self, limit, window):
         self.limit, self.window = limit, window
-        self._fails = {}
-        self._lock = threading.Lock()
+        self.fails = {}
+        self.lock = threading.Lock()
 
     def blocked(self, key):
-        with self._lock:
-            recent = [t for t in self._fails.get(key, []) if time.monotonic() - t < self.window]
-            self._fails[key] = recent
+        with self.lock:
+            recent = [t for t in self.fails.get(key, []) if time.monotonic() - t < self.window]
+            self.fails[key] = recent
             return len(recent) >= self.limit
 
     def fail(self, key):
-        with self._lock:
-            self._fails.setdefault(key, []).append(time.monotonic())
+        with self.lock:
+            self.fails.setdefault(key, []).append(time.monotonic())
 
     def clear(self, key):
-        with self._lock:
-            self._fails.pop(key, None)
+        with self.lock:
+            self.fails.pop(key, None)
 
 
 def public(user):

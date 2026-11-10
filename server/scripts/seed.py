@@ -8,16 +8,17 @@ from sqlalchemy import select
 from app.config import SEED
 from app.db_service.db import async_session_maker, engine
 from app.db_service.models import Asset, Breakdown
+from app.store import shift_of
 
 BREAKDOWN_LIMIT = 50
 
 
-def _clock(v):
+def to_time(v):
     text = v.strftime("%H:%M") if isinstance(v, time) else str(v)[:5]
     return time.fromisoformat(text)
 
 
-def _text(v):
+def to_text(v):
     return "" if pd.isna(v) else str(v)
 
 
@@ -45,16 +46,17 @@ def rows_from_workbook():
         Breakdown(
             date=r["date"].date(),
             asset_id=r["Asset ID"],
+            shift=shift_of(to_time(r["BD Start Time"])),
             category=r["BD Category"],
-            problem=_text(r["Problem Defination"]),
-            start=_clock(r["BD Start Time"]),
-            stop=_clock(r["BD Stop Time"]),
+            problem=to_text(r["Problem Defination"]),
+            start=to_time(r["BD Start Time"]),
+            stop=to_time(r["BD Stop Time"]),
             diagnose=int(r["Diagnose Time"]),
             spares=int(r["Spares Arrangement time"]),
             wrench=int(r["Wrench Time"]),
-            remarks=_text(r.get("Remarks")),
-            action=_text(r.get("Action Taken")),
-            entered_by=_text(r.get("Entered By")),
+            remarks=to_text(r.get("Remarks")),
+            action=to_text(r.get("Action Taken")),
+            entered_by=to_text(r.get("Entered By")),
         )
         for _, r in b.iloc[picks].iterrows()
     ]

@@ -10,6 +10,7 @@ class Breakdown(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     date: dt.date = Field(index=True)
     asset_id: str = Field(foreign_key="assets.id", index=True, max_length=20)
+    shift: str = Field(default="", max_length=1)
     category: str = Field(max_length=40)
     problem: str = Field(max_length=120)
     start: dt.time
