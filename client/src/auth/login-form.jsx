@@ -8,13 +8,6 @@ import { Logo } from "@/components/layout/logo";
 import { ThemeSwitch } from "@/components/layout/theme";
 import { Field, btnBase, cx, formError, mono, shell } from "@/components/ui";
 
-const DEMO = [
-  { id: "MGR001", name: "Maintenance Manager", role: "Manager", password: "Manager@123" },
-  { id: "MGR002", name: "Plant Head", role: "Manager", password: "Manager@123" },
-  { id: "MGR003", name: "Reliability Lead", role: "Manager", password: "Manager@123" },
-  { id: "EMP101", name: "Technician 1", role: "Employee", password: "Tech@123" },
-  { id: "EMP102", name: "Technician 2", role: "Employee", password: "Tech@123" },
-];
 const HEAD = "flex items-center justify-between gap-3 min-h-8 px-2.5 pb-1.5";
 const POINTS = [
   "Plant reliability at a glance: downtime, MTTR and MTBF",
@@ -75,7 +68,7 @@ export function LoginForm({ next }) {
           <form className="grid gap-4 p-5 sm:p-6 rounded-xl border border-line bg-panel shadow-card" onSubmit={submit}>
           <Logo className="lg:hidden w-[170px] mb-1" label="OMR Bagla Automotive Systems India Ltd." />
           <Field label="User ID">
-            <input name="user_id" autoComplete="username" required value={userId} onChange={(e) => setUserId(e.target.value.toUpperCase())} placeholder="e.g. EMP101" className={mono} autoFocus />
+            <input name="user_id" autoComplete="username" required value={userId} onChange={(e) => setUserId(e.target.value.toLowerCase())} placeholder="e.g. ayushkumar" className={mono} autoFocus />
           </Field>
           <Field label="Password">
             <span className="relative block">
@@ -95,29 +88,6 @@ export function LoginForm({ next }) {
           <button type="submit" className={cx(btnBase, "w-full min-h-[42px] px-4")} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
           </form>
         </div>
-
-        <section className={cx(shell, "w-full max-w-[400px]")} aria-labelledby="demo-h">
-          <div className={HEAD}>
-            <h2 id="demo-h" className="text-[13px] font-medium text-ink-2">Demo accounts</h2>
-            <p className="text-xs text-muted">Select one to fill the form</p>
-          </div>
-          <ul className="grid divide-y divide-line overflow-hidden rounded-xl border border-line bg-panel shadow-card">
-            {DEMO.map((d) => (
-              <li key={d.id}>
-                <button
-                  type="button"
-                  onClick={() => { setUserId(d.id); setPassword(d.password); setError(null); }}
-                  className="grid grid-cols-[72px_1fr_auto] items-center gap-2.5 w-full min-h-11 px-3.5 text-left text-[13px] hover:bg-hover"
-                >
-                  <span className={mono}>{d.id}</span>
-                  <span>{d.name}</span>
-                  <span className={cx("px-2 py-px rounded-full border text-[11.5px] font-semibold", d.role === "Manager" ? "border-chip-line bg-brand-soft text-accent" : "border-line bg-shell text-muted")}>{d.role}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <p className="px-2.5 pt-2 pb-1 text-xs text-muted">Placeholder IDs for the pilot. Managers can register assets; everyone can log breakdowns.</p>
-        </section>
       </main>
     </div>
   );
