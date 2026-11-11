@@ -183,7 +183,7 @@ export function Sidebar() {
       <div className={cx("contents md:flex md:items-center md:gap-2 md:h-[72px]", collapsed ? "md:justify-center" : "md:justify-between md:pl-5 md:pr-3")}>
         <Link href="/" className={cx("order-[-2] flex pr-1.5 md:order-none md:pr-0", collapsed && "md:hidden")} aria-label={`${APP_NAME} maintenance dashboard`}>
           <Logo className="hidden md:block w-[150px]" />
-          <Logo className="md:hidden w-16" compact />
+          <Logo className="md:hidden w-24" compact />
         </Link>
         <button
           type="button"
