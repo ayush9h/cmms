@@ -2,7 +2,8 @@ import json
 
 import pandas as pd
 
-from .store import CATEGORIES, CAUSES, CLASSES, DEFECTS, DISPOSITIONS, PHASES, SHIFTS, SHOPS, Store
+from .store import (CATEGORIES, CAUSES, CLASSES, DEFECTS, DISPOSITIONS, PHASES,
+                    SHIFTS, SHOPS, Store)
 
 DIMS = {"area": "area", "category": "category", "month": "month", "asset": "id"}
 
@@ -45,18 +46,29 @@ def span_hours(store: Store, month=None):
 def mtbf_hours(store: Store, f, minutes, events):
     if not events:
         return None
-    return round((len(assets_in(store, f)) * span_hours(store, f.get("month")) - minutes / 60) / events, 1)
+    return round(
+        (len(assets_in(store, f)) * span_hours(store, f.get("month")) - minutes / 60)
+        / events,
+        1,
+    )
 
 
 def dashboard(store: Store, f):
     bd = store.breakdowns
     df = scope(bd, f)
     n = len(df)
-    by_month = scope(bd, f, ("month",)).groupby("month").agg(minutes=("minutes", "sum"), events=("id", "size"))
+    by_month = (
+        scope(bd, f, ("month",))
+        .groupby("month")
+        .agg(minutes=("minutes", "sum"), events=("id", "size"))
+    )
     by_month = by_month.reindex(months(store), fill_value=0)
     cats = scope(bd, f, ("category",)).groupby("category")["minutes"].sum()
     return {
-        "period": {"start": store.start.strftime("%Y-%m-%d"), "end": store.end.strftime("%Y-%m-%d")},
+        "period": {
+            "start": store.start.strftime("%Y-%m-%d"),
+            "end": store.end.strftime("%Y-%m-%d"),
+        },
         "kpi": {
             "downtime_h": hours(df["minutes"].sum()),
             "events": n,
@@ -72,7 +84,9 @@ def dashboard(store: Store, f):
                 "downtime_h": hours(r.minutes),
                 "events": int(r.events),
                 "mttr_min": round(r.minutes / r.events) if r.events else None,
-                "mtbf_h": mtbf_hours(store, {**f, "month": m}, r.minutes, int(r.events)),
+                "mtbf_h": mtbf_hours(
+                    store, {**f, "month": m}, r.minutes, int(r.events)
+                ),
             }
             for m, r in by_month.iterrows()
         ],
@@ -84,14 +98,28 @@ DAYS_SHOWN = 31
 
 
 def oee_figures(rows):
-    planned, operating, down = (int(rows[c].sum()) for c in ("planned", "operating", "downtime_minutes"))
-    total, good, ideal = int(rows["total_pieces"].sum()), int(rows["good_pieces"].sum()), int(rows["projected_pieces"].sum())
+    planned, operating, down = (
+        int(rows[c].sum()) for c in ("planned", "operating", "downtime_minutes")
+    )
+    total, good, ideal = (
+        int(rows["total_pieces"].sum()),
+        int(rows["good_pieces"].sum()),
+        int(rows["projected_pieces"].sum()),
+    )
     a = operating / planned if planned else None
     p = min(1.0, total / ideal) if ideal and total else None
     q = good / total if total else None
     overall = a * p * q if None not in (a, p, q) else None
     return {
-        **{k: None if v is None else round(v * 100, 1) for k, v in (("availability", a), ("performance", p), ("quality", q), ("oee", overall))},
+        **{
+            k: None if v is None else round(v * 100, 1)
+            for k, v in (
+                ("availability", a),
+                ("performance", p),
+                ("quality", q),
+                ("oee", overall),
+            )
+        },
         "entries": len(rows),
         "planned_min": planned,
         "operating_min": operating,
@@ -111,15 +139,28 @@ def oee(store: Store, f):
     days = sorted(now["date"].unique())[-DAYS_SHOWN:]
     return {
         "kpi": oee_figures(now),
-        "monthly": [{"month": m, **oee_figures(rows[rows["month"] == m])} for m in pd.period_range(first, last, freq="M").strftime("%Y-%m")],
-        "daily": [{"date": pd.Timestamp(d).strftime("%Y-%m-%d"), **oee_figures(now[now["date"] == d])} for d in days],
+        "monthly": [
+            {"month": m, **oee_figures(rows[rows["month"] == m])}
+            for m in pd.period_range(first, last, freq="M").strftime("%Y-%m")
+        ],
+        "daily": [
+            {
+                "date": pd.Timestamp(d).strftime("%Y-%m-%d"),
+                **oee_figures(now[now["date"] == d]),
+            }
+            for d in days
+        ],
         "shifts": [{"shift": s, **oee_figures(now[now["shift"] == s])} for s in SHIFTS],
     }
 
 
 def ppc_find(store: Store, asset_id, date_from, date_to):
     p = store.ppc_entries
-    hit = p[(p["id"] == asset_id) & (p["date_from"] <= pd.Timestamp(date_to)) & (p["date_to"] >= pd.Timestamp(date_from))]
+    hit = p[
+        (p["id"] == asset_id)
+        & (p["date_from"] <= pd.Timestamp(date_to))
+        & (p["date_to"] >= pd.Timestamp(date_from))
+    ]
     if hit.empty:
         return None
     r = hit.iloc[0]
@@ -129,7 +170,15 @@ def ppc_find(store: Store, asset_id, date_from, date_to):
         "date_to": r.date_to.strftime("%Y-%m-%d"),
         "running": json.loads(r.running),
         "shift_hours": r.shift_minutes / 60,
-        **{k: int(r[k]) for k in ("short_breaks", "short_break_minutes", "meal_breaks", "meal_break_minutes")},
+        **{
+            k: int(r[k])
+            for k in (
+                "short_breaks",
+                "short_break_minutes",
+                "meal_breaks",
+                "meal_break_minutes",
+            )
+        },
         "ideal_rate": float(r.ideal_rate),
     }
 
@@ -148,12 +197,23 @@ def paginate(df, page, size):
     total = len(df)
     pages = max(1, -(-total // size))
     page = min(max(1, page), pages)
-    return df.iloc[(page - 1) * size : page * size], {"total": total, "page": page, "pages": pages, "page_size": size}
+    return df.iloc[(page - 1) * size : page * size], {
+        "total": total,
+        "page": page,
+        "pages": pages,
+        "page_size": size,
+    }
 
 
 def asset_page(store: Store, q=None, area=None, cls=None, page=1, size=25):
-    stats = store.breakdowns.groupby("id").agg(minutes=("minutes", "sum"), events=("id", "size"), last=("date", "max"))
-    rows = store.assets.join(stats, on="id").fillna({"minutes": 0, "events": 0}).sort_values("id")
+    stats = store.breakdowns.groupby("id").agg(
+        minutes=("minutes", "sum"), events=("id", "size"), last=("date", "max")
+    )
+    rows = (
+        store.assets.join(stats, on="id")
+        .fillna({"minutes": 0, "events": 0})
+        .sort_values("id")
+    )
     rows = pick(pick(rows, "area", area), "cls", cls)
     rows = search(rows, q, ["id", "name", "area", "oem", "application"])
     chunk, meta = paginate(rows, page, size)
@@ -176,8 +236,18 @@ def asset_page(store: Store, q=None, area=None, cls=None, page=1, size=25):
     return {"items": items, **meta, "all": len(store.assets)}
 
 
-def breakdown_rows(store: Store, q=None, area=None, category=None, asset=None, date_from=None, date_to=None):
-    df = pick(pick(pick(store.breakdowns, "area", area), "category", category), "id", asset)
+def breakdown_rows(
+    store: Store,
+    q=None,
+    area=None,
+    category=None,
+    asset=None,
+    date_from=None,
+    date_to=None,
+):
+    df = pick(
+        pick(pick(store.breakdowns, "area", area), "category", category), "id", asset
+    )
     if date_from:
         df = df[df["date"] >= pd.Timestamp(date_from)]
     if date_to:
@@ -186,10 +256,24 @@ def breakdown_rows(store: Store, q=None, area=None, category=None, asset=None, d
     return df.sort_values(["date", "start"], ascending=False, kind="stable")
 
 
-def breakdown_page(store: Store, q=None, area=None, category=None, asset=None, date_from=None, date_to=None, page=1, size=25):
+def breakdown_page(
+    store: Store,
+    q=None,
+    area=None,
+    category=None,
+    asset=None,
+    date_from=None,
+    date_to=None,
+    page=1,
+    size=25,
+):
     df = breakdown_rows(store, q, area, category, asset, date_from, date_to)
     chunk, meta = paginate(df, page, size)
-    return {"items": [breakdown_item(r) for r in chunk.itertuples()], **meta, "all": len(store.breakdowns)}
+    return {
+        "items": [breakdown_item(r) for r in chunk.itertuples()],
+        **meta,
+        "all": len(store.breakdowns),
+    }
 
 
 def breakdown_item(r):
@@ -226,7 +310,15 @@ def options(store: Store):
         "category": list(CATEGORIES),
         "month": sorted(bd["month"].unique()),
         "problem": bd["problem"][bd["problem"] != ""].value_counts().index.tolist(),
-        "asset": [{"id": r.id, "name": r.name, "area": r.area, "run_rate": None if pd.isna(r.run_rate) else r.run_rate} for r in store.assets.itertuples()],
+        "asset": [
+            {
+                "id": r.id,
+                "name": r.name,
+                "area": r.area,
+                "run_rate": None if pd.isna(r.run_rate) else r.run_rate,
+            }
+            for r in store.assets.itertuples()
+        ],
         "defect": list(DEFECTS),
         "shift": list(SHIFTS),
         "disposition": list(DISPOSITIONS),
@@ -234,16 +326,35 @@ def options(store: Store):
     }
 
 
-def rejection_rows(store: Store, q=None, area=None, asset=None, defect=None, disposition=None):
-    df = pick(pick(pick(pick(store.rejections, "area", area), "id", asset), "defect", defect), "disposition", disposition)
+def rejection_rows(
+    store: Store, q=None, area=None, asset=None, defect=None, disposition=None
+):
+    df = pick(
+        pick(pick(pick(store.rejections, "area", area), "id", asset), "defect", defect),
+        "disposition",
+        disposition,
+    )
     df = search(df, q, ["id", "name", "part", "defect", "entered_by"])
     return df.iloc[::-1].sort_values("date", ascending=False, kind="stable")
 
 
-def rejection_page(store: Store, q=None, area=None, asset=None, defect=None, disposition=None, page=1, size=25):
+def rejection_page(
+    store: Store,
+    q=None,
+    area=None,
+    asset=None,
+    defect=None,
+    disposition=None,
+    page=1,
+    size=25,
+):
     df = rejection_rows(store, q, area, asset, defect, disposition)
     chunk, meta = paginate(df, page, size)
-    return {"items": [rejection_item(r) for r in chunk.itertuples()], **meta, "all": len(store.rejections)}
+    return {
+        "items": [rejection_item(r) for r in chunk.itertuples()],
+        **meta,
+        "all": len(store.rejections),
+    }
 
 
 def rejection_item(r):

@@ -16,7 +16,9 @@ def upgrade() -> None:
     with op.batch_alter_table("ppc_entries") as batch:
         batch.add_column(sa.Column("date_from", sa.Date(), nullable=True))
         batch.add_column(sa.Column("date_to", sa.Date(), nullable=True))
-        batch.add_column(sa.Column("working_days", sa.Integer(), nullable=False, server_default="1"))
+        batch.add_column(
+            sa.Column("working_days", sa.Integer(), nullable=False, server_default="1")
+        )
     op.execute("UPDATE ppc_entries SET date_from = date, date_to = date")
     op.drop_index("ix_ppc_entries_date", table_name="ppc_entries")
     with op.batch_alter_table("ppc_entries") as batch:

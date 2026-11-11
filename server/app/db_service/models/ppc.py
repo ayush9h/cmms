@@ -19,4 +19,6 @@ class PpcEntry(SQLModel, table=True):
     meal_break_minutes: int = 0
     ideal_rate: float
     entered_by: str = Field(default="", max_length=120)
-    created_at: dt.datetime = Field(default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True))
+    created_at: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True)
+    )

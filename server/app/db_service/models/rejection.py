@@ -22,4 +22,6 @@ class Rejection(SQLModel, table=True):
     defect: str = Field(default="", max_length=40)
     disposition: str = Field(default="", max_length=10)
     entered_by: str = Field(default="", max_length=120)
-    created_at: dt.datetime = Field(default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True))
+    created_at: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True)
+    )

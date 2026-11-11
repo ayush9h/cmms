@@ -21,4 +21,6 @@ def upgrade() -> None:
 def downgrade() -> None:
     with op.batch_alter_table("ppc_entries") as batch:
         for name in LINKED:
-            batch.add_column(sa.Column(name, sa.Integer(), nullable=False, server_default="0"))
+            batch.add_column(
+                sa.Column(name, sa.Integer(), nullable=False, server_default="0")
+            )

@@ -40,4 +40,6 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table("ppc_entries")
     with op.batch_alter_table("rejections") as batch:
-        batch.add_column(sa.Column("target", sa.Integer(), nullable=False, server_default="0"))
+        batch.add_column(
+            sa.Column("target", sa.Integer(), nullable=False, server_default="0")
+        )

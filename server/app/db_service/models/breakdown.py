@@ -21,4 +21,6 @@ class Breakdown(SQLModel, table=True):
     remarks: str = Field(default="", max_length=500)
     action: str = Field(default="", max_length=500)
     entered_by: str = Field(default="", max_length=120)
-    created_at: dt.datetime = Field(default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True))
+    created_at: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.now(dt.UTC), sa_type=DateTime(timezone=True)
+    )
