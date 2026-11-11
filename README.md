@@ -38,33 +38,6 @@ The platform pairs a Next.js App Router interface with a FastAPI service. Record
 - **Light and dark themes** driven by CSS custom properties, with a collapsible navigation rail.
 
 
-## Technology Stack
-
-| Layer | Technologies |
-| --- | --- |
-| Frontend | Next.js 16 App Router, React 19, Tailwind CSS 4, Recharts, Lucide |
-| Authentication | Signed JWT session cookies, role-based access |
-| Backend | FastAPI, Uvicorn, Pydantic |
-| Analytics | pandas in-memory frames |
-| Relational database | PostgreSQL (Aiven), SQLModel, SQLAlchemy async, Alembic |
-| Exports | openpyxl, python-pptx |
-| Tooling | npm, pip, Playwright |
-| Deployment | Vercel (client), Render (API) |
-
-## OEE Calculation
-
-OEE follows the standard definition, measured for each shift that has production or a breakdown logged against a machine with a PPC entry covering that date.
-
-| Factor | Calculation |
-| --- | --- |
-| Planned production time | Shift length − (short breaks + meal breaks) |
-| Availability | (Planned production time − breakdown minutes) ÷ planned production time |
-| Performance | Pieces produced ÷ (planned production time × ideal run rate) |
-| Quality | (Pieces produced − rejected pieces) ÷ pieces produced |
-| OEE | Availability × Performance × Quality |
-
-Day, month, and shift figures aggregate the shifts logged within them. Shifts with nothing logged are excluded, so an unused planned shift does not depress the result.
-
 ## Project Status
 
 Work in progress. Breakdown logging, production and rejection logging, the asset register, the reliability dashboard, OEE, and the export features are implemented and in internal testing. Known gaps:
