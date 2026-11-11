@@ -13,5 +13,4 @@ ENV PYTHONUNBUFFERED=1 \
 
 EXPOSE 10000
 
-
-CMD alembic upgrade head && exec uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+CMD exec uvicorn main:app --host 0.0.0.0 --port $PORT

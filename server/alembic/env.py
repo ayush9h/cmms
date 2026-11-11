@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
 from alembic import context
-from app.config import db_url
+from app.config import settings
 from app.db_service import models  # noqa: F401  registers tables on SQLModel.metadata
 
 config = context.config
@@ -15,7 +15,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", db_url().replace("%", "%%"))
+config.set_main_option("sqlalchemy.url", settings.db_url.replace("%", "%%"))
 
 target_metadata = SQLModel.metadata
 VERSION_TABLE = "cmms_alembic_version"
