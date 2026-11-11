@@ -1,0 +1,50 @@
+[
+  {
+    "id": "MGR001",
+    "name": "Maintenance Manager",
+    "role": "manager",
+    "password_hash": "scrypt$689164330694686ffdbeb390a7b0755a$c0b5fa1379d55eaa9924a225dd2386c69384089f1923737b35bfcfdf5759d5af"
+  },
+  {
+    "id": "MGR002",
+    "name": "Plant Head",
+    "role": "manager",
+    "password_hash": "scrypt$36a4a42d1f12d6bc372359b892aca4a0$9b5465d81286c1877a29b3a88b791e54027df1d9e7d11c2e2440bf744910d073"
+  },
+  {
+    "id": "MGR003",
+    "name": "Reliability Lead",
+    "role": "manager",
+    "password_hash": "scrypt$3ff436a56865bc13290be32e405c1552$a47fb41d6c5d19743fe1ee20bce0dfabc192e0707430022540a3cee5d6ef798b"
+  },
+  {
+    "id": "EMP101",
+    "name": "Technician 1",
+    "role": "employee",
+    "password_hash": "scrypt$70f2dce03532fa75ec639f18bf9ba331$f0b63ef8a2c1af50a185686055ecb7312408ab7a4ef11648e0b4358f2db304ee"
+  },
+  {
+    "id": "EMP102",
+    "name": "Technician 2",
+    "role": "employee",
+    "password_hash": "scrypt$d5a5d6605a949c55e37343b512a003ba$65433dd5e1a475cee7a90e01b6aa6e71ffbdf43577959d7b8a3f7cc72775e1ca"
+  },
+  {
+    "id": "EMP103",
+    "name": "Technician 3",
+    "role": "employee",
+    "password_hash": "scrypt$71bb23933046301d7001f30ca43f65b5$f1f31cc7b481cbbf81cc28b5291ee6898094088853ec4cdcb75720adace598dd"
+  },
+  {
+    "id": "EMP104",
+    "name": "Technician 4",
+    "role": "employee",
+    "password_hash": "scrypt$4dd7a4675651515cf597d6b0ba2a32a6$c751840bf44f4522486e159c9d748c651f5104b78a17cbc78e2b8a7bb0940dca"
+  },
+  {
+    "id": "EMP105",
+    "name": "Technician 5",
+    "role": "employee",
+    "password_hash": "scrypt$6393563a9dba2c29489e47de49a6f953$2b635bc33cf79db3d128a0aa7cfa6ffb2e36d529107039def8f5c23e11297cdb"
+  }
+]
