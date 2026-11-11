@@ -19,7 +19,10 @@ export const METRICS = [
     world: 90,
     color: "var(--cat-1)",
     bar: "bg-cat-1",
-    note: (k) => (k.entries ? `${fmt.mins(k.operating_min)} run of ${fmt.mins(k.planned_min)} planned` : none),
+    note: (k) =>
+      k.entries
+        ? `${fmt.mins(k.operating_min)} run of ${fmt.mins(k.planned_min)} planned`
+        : none,
   },
   {
     key: "performance",
@@ -27,7 +30,10 @@ export const METRICS = [
     world: 95,
     color: "var(--cat-2)",
     bar: "bg-cat-2",
-    note: (k) => (k.entries ? `${fmt.n(k.total_pieces)} of ${fmt.n(k.projected_pieces)} projected pieces` : none),
+    note: (k) =>
+      k.entries
+        ? `${fmt.n(k.total_pieces)} of ${fmt.n(k.projected_pieces)} projected pieces`
+        : none,
   },
   {
     key: "quality",
@@ -35,6 +41,9 @@ export const METRICS = [
     world: 99.9,
     color: "var(--cat-3)",
     bar: "bg-cat-3",
-    note: (k) => (k.entries ? `${fmt.n(k.good_pieces)} good of ${fmt.n(k.total_pieces)} pieces` : none),
+    note: (k) =>
+      k.entries
+        ? `${fmt.n(k.good_pieces)} good of ${fmt.n(k.total_pieces)} pieces`
+        : none,
   },
 ];

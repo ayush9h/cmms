@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "lucide-react": "^1.70.0",
@@ -15,6 +16,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.5",
-    "tailwindcss": "4.3.5"
+    "prettier": "^3.9.10",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "tailwindcss": "4.3.5",
+    "typescript": "^7.0.2"
   }
 }

@@ -9,7 +9,11 @@ export function useJson(url, nonce = 0) {
     setState((s) => ({ ...s, busy: true }));
     getJson(url, { signal: ctl.signal })
       .then((data) => setState({ data, error: null, busy: false }))
-      .catch((error) => !ctl.signal.aborted && setState((s) => ({ ...s, error, busy: false })));
+      .catch(
+        (error) =>
+          !ctl.signal.aborted &&
+          setState((s) => ({ ...s, error, busy: false })),
+      );
     return () => ctl.abort();
   }, [url, nonce]);
   return state;
@@ -21,7 +25,10 @@ export function useCountUp(target, ms = 700) {
   useEffect(() => {
     if (target == null) return setValue(null);
     const from = Number.isFinite(shown.current) ? shown.current : 0;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || from === target) {
+    if (
+      matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      from === target
+    ) {
       shown.current = target;
       return setValue(target);
     }

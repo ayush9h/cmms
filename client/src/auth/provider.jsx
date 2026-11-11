@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { getJson, postJson } from "@/lib/api";
 
 const AuthContext = createContext(null);
@@ -28,7 +35,10 @@ export function AuthProvider({ children }) {
       ...state,
       isManager: state.user?.role === "manager",
       login: async (userId, password) => {
-        const user = await postJson("/api/auth/login", { user_id: userId, password });
+        const user = await postJson("/api/auth/login", {
+          user_id: userId,
+          password,
+        });
         setState({ user, loading: false });
         return user;
       },

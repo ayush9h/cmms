@@ -37,14 +37,27 @@ export function ThemeSwitch({ compact, labels, className }) {
     const next = MODES[(MODES.indexOf(current) + 1) % MODES.length];
     const label = `Theme: ${current.label}. Switch to ${next.label}`;
     return (
-      <button type="button" className={cx(iconBtn, className)} onClick={() => apply(next.value)} title={label} aria-label={label}>
+      <button
+        type="button"
+        className={cx(iconBtn, className)}
+        onClick={() => apply(next.value)}
+        title={label}
+        aria-label={label}
+      >
         <current.Icon size={18} strokeWidth={1.8} aria-hidden="true" />
       </button>
     );
   }
 
   return (
-    <div className={cx("grid-cols-3 gap-0.5 p-[3px] rounded-[10px] border border-line bg-line/60", className ?? "grid")} role="group" aria-label="Theme">
+    <div
+      className={cx(
+        "grid-cols-3 gap-0.5 p-[3px] rounded-[10px] border border-line bg-line/60",
+        className ?? "grid",
+      )}
+      role="group"
+      aria-label="Theme"
+    >
       {MODES.map(({ value, label, Icon }) => (
         <button
           key={value}
@@ -54,7 +67,9 @@ export function ThemeSwitch({ compact, labels, className }) {
           title={label}
           className={cx(
             "inline-flex items-center justify-center gap-1.5 min-h-7 px-1.5 rounded-md text-xs font-medium",
-            mode === value ? "bg-panel text-ink shadow-card" : "text-muted hover:text-ink",
+            mode === value
+              ? "bg-panel text-ink shadow-card"
+              : "text-muted hover:text-ink",
           )}
         >
           <Icon size={15} strokeWidth={1.8} aria-hidden="true" />

@@ -4,13 +4,31 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cx } from "./styles";
 
-export function Select({ label, value = "", options, onChange, placeholder, name, disabled, hideLabel, required, up, small, field, multiple, className }) {
+export function Select({
+  label,
+  value = "",
+  options,
+  onChange,
+  placeholder,
+  name,
+  disabled,
+  hideLabel,
+  required,
+  up,
+  small,
+  field,
+  multiple,
+  className,
+}) {
   const id = useId();
   const root = useRef(null);
   const list = useRef(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const all = placeholder == null || required || multiple ? options : [{ value: "", label: placeholder }, ...options];
+  const all =
+    placeholder == null || required || multiple
+      ? options
+      : [{ value: "", label: placeholder }, ...options];
   const picked = multiple ? options.filter((o) => value.includes(o.value)) : [];
   const current = multiple ? picked[0] : all.find((o) => o.value === value);
   const isOn = (o) => (multiple ? value.includes(o.value) : o.value === value);
@@ -23,7 +41,8 @@ export function Select({ label, value = "", options, onChange, placeholder, name
   }, [open]);
 
   useEffect(() => {
-    if (open) list.current?.children[active]?.scrollIntoView({ block: "nearest" });
+    if (open)
+      list.current?.children[active]?.scrollIntoView({ block: "nearest" });
   }, [open, active]);
 
   const show = () => {
@@ -35,7 +54,11 @@ export function Select({ label, value = "", options, onChange, placeholder, name
       onChange(o.value);
       return setOpen(false);
     }
-    onChange(value.includes(o.value) ? value.filter((v) => v !== o.value) : [...value, o.value]);
+    onChange(
+      value.includes(o.value)
+        ? value.filter((v) => v !== o.value)
+        : [...value, o.value],
+    );
   };
   const onKey = (e) => {
     if (!open) {
@@ -45,7 +68,14 @@ export function Select({ label, value = "", options, onChange, placeholder, name
       }
       return;
     }
-    const step = { ArrowDown: active + 1, ArrowUp: active - 1, Home: 0, End: all.length - 1, PageDown: active + 8, PageUp: active - 8 }[e.key];
+    const step = {
+      ArrowDown: active + 1,
+      ArrowUp: active - 1,
+      Home: 0,
+      End: all.length - 1,
+      PageDown: active + 8,
+      PageUp: active - 8,
+    }[e.key];
     if (step !== undefined) {
       e.preventDefault();
       setActive(Math.min(all.length - 1, Math.max(0, step)));
@@ -59,7 +89,9 @@ export function Select({ label, value = "", options, onChange, placeholder, name
       setOpen(false);
     } else if (e.key.length === 1) {
       const k = e.key.toLowerCase();
-      const hit = [...all.slice(active + 1), ...all.slice(0, active + 1)].find((o) => o.label.toLowerCase().startsWith(k));
+      const hit = [...all.slice(active + 1), ...all.slice(0, active + 1)].find(
+        (o) => o.label.toLowerCase().startsWith(k),
+      );
       if (hit) setActive(all.indexOf(hit));
     }
   };
@@ -84,18 +116,43 @@ export function Select({ label, value = "", options, onChange, placeholder, name
           "flex items-center gap-2 w-full min-w-0 px-3 rounded-lg border bg-panel text-ink text-left transition-[border-color,box-shadow]",
           "hover:border-field-hover focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-[inset_0_0_0_1px_var(--accent)] disabled:opacity-60 disabled:cursor-progress",
           small ? "h-[34px]" : "h-10",
-          open ? "border-accent shadow-[inset_0_0_0_1px_var(--accent)]" : "border-line-strong shadow-card",
+          open
+            ? "border-accent shadow-[inset_0_0_0_1px_var(--accent)]"
+            : "border-line-strong shadow-card",
         )}
       >
-        <span id={`${id}n`} className={hideLabel ? "sr-only" : "text-[13px] font-medium text-muted"}>{label}</span>
+        <span
+          id={`${id}n`}
+          className={
+            hideLabel ? "sr-only" : "text-[13px] font-medium text-muted"
+          }
+        >
+          {label}
+        </span>
         <span
           id={`${id}v`}
-          className={cx("flex-1 min-w-0 truncate", field ? "text-[15px]" : "text-sm font-semibold", empty && hideLabel && "font-normal text-muted")}
+          className={cx(
+            "flex-1 min-w-0 truncate",
+            field ? "text-[15px]" : "text-sm font-semibold",
+            empty && hideLabel && "font-normal text-muted",
+          )}
         >
           {current?.label ?? placeholder}
         </span>
-        {picked.length > 1 && <span className="shrink-0 px-1.5 rounded-md border border-line bg-panel-2 text-xs font-semibold text-muted">+{picked.length - 1}</span>}
-        <ChevronDown size={16} strokeWidth={1.6} aria-hidden="true" className={cx("shrink-0 transition-[rotate] duration-200 ease-snap", open ? "rotate-180 text-accent" : "text-brand-grey")} />
+        {picked.length > 1 && (
+          <span className="shrink-0 px-1.5 rounded-md border border-line bg-panel-2 text-xs font-semibold text-muted">
+            +{picked.length - 1}
+          </span>
+        )}
+        <ChevronDown
+          size={16}
+          strokeWidth={1.6}
+          aria-hidden="true"
+          className={cx(
+            "shrink-0 transition-[rotate] duration-200 ease-snap",
+            open ? "rotate-180 text-accent" : "text-brand-grey",
+          )}
+        />
       </button>
       {open && (
         <ul
@@ -127,7 +184,12 @@ export function Select({ label, value = "", options, onChange, placeholder, name
                 )}
               >
                 {o.label}
-                <Check size={16} strokeWidth={2} aria-hidden="true" className={cx("shrink-0", !selected && "invisible")} />
+                <Check
+                  size={16}
+                  strokeWidth={2}
+                  aria-hidden="true"
+                  className={cx("shrink-0", !selected && "invisible")}
+                />
               </li>
             );
           })}

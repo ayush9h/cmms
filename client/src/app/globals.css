@@ -68,7 +68,8 @@
   --pr: #0f766e;
   --pr-soft: #e2f4f1;
   --elev: 0 1px 2px rgb(17 20 24 / 0.05);
-  --elev-pop: 0 14px 32px -10px rgb(17 20 24 / 0.2), 0 2px 6px rgb(17 20 24 / 0.06);
+  --elev-pop:
+    0 14px 32px -10px rgb(17 20 24 / 0.2), 0 2px 6px rgb(17 20 24 / 0.06);
   color-scheme: light;
   --radius: 6px;
   --radius-lg: 12px;
@@ -145,7 +146,8 @@
     --pr: #4fc4b4;
     --pr-soft: rgb(79 196 180 / 0.12);
     --elev: 0 1px 0 rgb(0 0 0 / 0.25);
-    --elev-pop: 0 16px 40px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.04);
+    --elev-pop:
+      0 16px 40px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.04);
     color-scheme: dark;
   }
 }
@@ -218,7 +220,8 @@
   --pr: #4fc4b4;
   --pr-soft: rgb(79 196 180 / 0.12);
   --elev: 0 1px 0 rgb(0 0 0 / 0.25);
-  --elev-pop: 0 16px 40px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.04);
+  --elev-pop:
+    0 16px 40px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.04);
   color-scheme: dark;
 }
 
@@ -328,7 +331,10 @@
   body {
     background: var(--ground);
     color: var(--ink);
-    font: 400 15px/1.5 var(--font-inter), system-ui, sans-serif;
+    font:
+      400 15px/1.5 var(--font-inter),
+      system-ui,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 

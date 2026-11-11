@@ -50,43 +50,86 @@ export function LoginForm({ next }) {
         className="hidden lg:flex flex-col justify-between gap-8 py-10 px-[clamp(28px,3.5vw,56px)] text-ink"
         aria-hidden="true"
       >
-        <Logo className="w-[220px]" />
-        <p className="max-w-[22ch] text-[clamp(26px,2.5vw,34px)] font-semibold leading-[1.15] tracking-[-0.03em] text-balance">Every breakdown logged. Every hour of downtime accounted for.</p>
+        <Logo className="text-[30px]" />
+        <p className="max-w-[22ch] text-[clamp(26px,2.5vw,34px)] font-semibold leading-[1.15] tracking-[-0.03em] text-balance">
+          Every breakdown logged. Every hour of downtime accounted for.
+        </p>
         <ul className="grid gap-3 text-sm text-ink-2">
           {POINTS.map((p) => (
-            <li key={p} className="flex gap-2.5 before:size-1.5 before:mt-2 before:shrink-0 before:rounded-full before:bg-brand">{p}</li>
+            <li
+              key={p}
+              className="flex gap-2.5 before:size-1.5 before:mt-2 before:shrink-0 before:rounded-full before:bg-brand"
+            >
+              {p}
+            </li>
           ))}
         </ul>
       </section>
 
-      <main className="relative grid content-center justify-items-center gap-3 px-4 pt-6 pb-10 sm:pt-[72px] bg-canvas lg:my-2 lg:mr-2 lg:rounded-2xl lg:border lg:border-line lg:shadow-card">
-        <ThemeSwitch labels className="grid w-full max-w-[400px] mb-3 sm:mb-0 sm:absolute sm:top-5 sm:right-5 sm:w-60" />
-        <div className={cx(shell, "w-full max-w-[400px]")}>
+      <main className="relative grid content-center justify-items-center gap-3 px-4 pt-6 pb-10 sm:pt-18 bg-canvas lg:my-2 lg:mr-2 lg:rounded-2xl lg:border lg:border-line lg:shadow-card">
+        <ThemeSwitch
+          labels
+          className="grid w-full max-w-[400px] mb-3 sm:mb-0 sm:absolute sm:top-5 sm:right-5 sm:w-60"
+        />
+        <div className={cx(shell, "w-full max-w-100")}>
           <div className={HEAD}>
             <h1 className="text-[13px] font-medium text-ink-2">Sign in</h1>
             <p className="text-xs text-muted">Employee or manager ID</p>
           </div>
-          <form className="grid gap-4 p-5 sm:p-6 rounded-xl border border-line bg-panel shadow-card" onSubmit={submit}>
-          <Logo className="lg:hidden w-[170px] mb-1" label={APP_FULL_NAME} />
-          <Field label="User ID">
-            <input name="user_id" autoComplete="username" required value={userId} onChange={(e) => setUserId(e.target.value.toLowerCase())} placeholder="e.g. ayushkumar" className={mono} autoFocus />
-          </Field>
-          <Field label="Password">
-            <span className="relative block">
-              <input name="password" type={show ? "text" : "password"} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="pr-11" />
-              <button
-                type="button"
-                onClick={() => setShow((s) => !s)}
-                aria-label={show ? "Hide password" : "Show password"}
-                aria-pressed={show}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 grid place-items-center size-8 rounded-md text-muted hover:bg-brand-soft hover:text-accent"
-              >
-                <Toggle size={17} strokeWidth={1.8} aria-hidden="true" />
-              </button>
-            </span>
-          </Field>
-          {error && <p className={formError} role="alert">{error}</p>}
-          <button type="submit" className={cx(btnBase, "w-full min-h-[42px] px-4")} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+          <form
+            className="grid gap-4 p-5 sm:p-6 rounded-xl border border-line bg-panel shadow-card"
+            onSubmit={submit}
+          >
+            <Logo
+              className="lg:hidden text-[22px] mb-1"
+              label={APP_FULL_NAME}
+            />
+            <Field label="User ID">
+              <input
+                name="user_id"
+                autoComplete="username"
+                required
+                value={userId}
+                onChange={(e) => setUserId(e.target.value.toLowerCase())}
+                placeholder="e.g. ayushkumar"
+                className={mono}
+                autoFocus
+              />
+            </Field>
+            <Field label="Password">
+              <span className="relative block">
+                <input
+                  name="password"
+                  type={show ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow((s) => !s)}
+                  aria-label={show ? "Hide password" : "Show password"}
+                  aria-pressed={show}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 grid place-items-center size-8 rounded-md text-muted hover:bg-brand-soft hover:text-accent"
+                >
+                  <Toggle size={17} strokeWidth={1.8} aria-hidden="true" />
+                </button>
+              </span>
+            </Field>
+            {error && (
+              <p className={formError} role="alert">
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              className={cx(btnBase, "w-full min-h-10.5 px-4")}
+              disabled={busy}
+            >
+              {busy ? "Signing in…" : "Sign in"}
+            </button>
           </form>
         </div>
       </main>

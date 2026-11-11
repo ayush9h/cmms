@@ -4,5 +4,9 @@ export const metadata = { title: "Log production & rejection" };
 
 export default async function Page({ searchParams }) {
   const { edit } = await searchParams;
-  return <RejectionForm edit={typeof edit === "string" && /^\d+$/.test(edit) ? edit : undefined} />;
+  return (
+    <RejectionForm
+      edit={typeof edit === "string" && /^\d+$/.test(edit) ? edit : undefined}
+    />
+  );
 }
