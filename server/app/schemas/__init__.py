@@ -1,8 +1,8 @@
-from .assets import AssetIn
-from .auth import LoginIn
-from .base import Strict
-from .breakdowns import BreakdownIn
-from .ppc import PpcIn
-from .rejections import RejectionIn
+from app.schemas.assets import AssetIn
+from app.schemas.auth import LoginIn
+from app.schemas.base import Strict
+from app.schemas.breakdowns import BreakdownIn
+from app.schemas.ppc import PpcIn
+from app.schemas.rejections import RejectionIn
 
 __all__ = ["AssetIn", "BreakdownIn", "LoginIn", "PpcIn", "RejectionIn", "Strict"]

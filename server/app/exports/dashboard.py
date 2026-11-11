@@ -10,12 +10,12 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
-from ..analytics import scope
-from ..store import Store
-from .slides import (add_card, add_doughnut, add_text, new_slide, no_shadow,
+from app.analytics import scope
+from app.store import Store
+from app.exports.slides import (add_card, add_doughnut, add_text, new_slide, no_shadow,
                      style_chart)
-from .theme import (BRAND, CATS, FONT, INK, LINE, LOGO, MUTED, PANEL, PHASES,
-                    WHITE)
+from app.exports.theme import (BRAND, BRAND_NAME, BRAND_RGB, CATS, FONT, INK,
+                               LINE, MUTED, PANEL, PHASES, WHITE)
 
 
 def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
@@ -37,7 +37,7 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
     top = top.sort_values("minutes", ascending=False).head(10).reset_index()
 
     cover = prs.slides.add_slide(prs.slide_layouts[6])
-    cover.shapes.add_picture(str(LOGO), Inches(0.8), Inches(0.8), height=Inches(0.9))
+    add_text(cover, 0.8, 0.8, 6.0, 0.9, BRAND_NAME, 48, True, BRAND_RGB)
     add_text(cover, 0.8, 2.6, 11.5, 1.0, "Maintenance reliability review", 40, True)
     add_text(cover, 0.8, 3.6, 11.5, 0.5, applied, 18, color=MUTED)
     add_text(cover, 0.8, 4.1, 11.5, 0.5, period, 18, color=MUTED)
@@ -55,7 +55,7 @@ def dashboard_pptx(store: Store, data: dict, f: dict, labels: dict):
         6.6,
         11.5,
         0.4,
-        f"OMR Bagla Automotive Systems India Ltd.  ·  Generated {date.today():%d %b %Y}",
+        f"{BRAND_NAME}  ·  Generated {date.today():%d %b %Y}",
         12,
         color=MUTED,
     )

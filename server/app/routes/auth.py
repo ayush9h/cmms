@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..auth import (LoginThrottle, current_user, issue_token, public,
+from app.auth import (LoginThrottle, current_user, issue_token, public,
                     verify_password)
-from ..config import settings
-from ..db_service.db import get_session
-from ..db_service.models import User
-from ..schemas import LoginIn
+from app.config import settings
+from app.db_service.db import get_session
+from app.db_service.models import User
+from app.schemas import LoginIn
 
 router = APIRouter(prefix="/auth")
 throttle = LoginThrottle(settings.max_login_failures, settings.lockout_seconds)

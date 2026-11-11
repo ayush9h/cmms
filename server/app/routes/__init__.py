@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 
-from .assets import router as assets_router
-from .auth import router as auth_router
-from .breakdowns import router as breakdowns_router
-from .dashboard import router as dashboard_router
-from .health import router as health_router
-from .ppc import router as ppc_router
-from .rejections import router as rejections_router
+from app.routes.assets import router as assets_router
+from app.routes.auth import router as auth_router
+from app.routes.breakdowns import router as breakdowns_router
+from app.routes.dashboard import router as dashboard_router
+from app.routes.health import router as health_router
+from app.routes.ppc import router as ppc_router
+from app.routes.rejections import router as rejections_router
 
 router = APIRouter(prefix="/api")
 

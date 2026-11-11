@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .workbook import single_sheet
+from app.exports.workbook import single_sheet
 
 
 def breakdowns_xlsx(df: pd.DataFrame):

@@ -3,8 +3,8 @@ from typing import Literal
 
 from pydantic import Field
 
-from ..store import CLASSES, SHOPS
-from .base import Strict
+from app.schemas.base import Strict
+from app.store import CLASSES, SHOPS
 
 
 class AssetIn(Strict):

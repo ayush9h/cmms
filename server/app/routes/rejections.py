@@ -2,12 +2,12 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from .. import analytics, exports
-from ..auth import current_user
-from ..db_service.models import Rejection
-from ..schemas import RejectionIn
-from ..store import CAUSES, Store
-from .deps import PAGE, PAGE_SIZE, SEARCH, download, found, many, store
+from app import analytics, exports
+from app.auth import current_user
+from app.db_service.models import Rejection
+from app.routes.deps import PAGE, PAGE_SIZE, SEARCH, download, found, many, store
+from app.schemas import RejectionIn
+from app.store import CAUSES, Store
 
 router = APIRouter(prefix="/rejections")
 

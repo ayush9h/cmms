@@ -1,3 +1,7 @@
+export const APP_NAME = "CMMS";
+export const APP_TAGLINE = "Dashboard System";
+export const APP_FULL_NAME = `${APP_NAME} ${APP_TAGLINE}`;
+
 export const PHASES = [
   { key: "diagnose", label: "Diagnosis", short: "Diagnosis", color: "var(--ph-diagnose)", cls: "fill-ph-diagnose" },
   { key: "spares", label: "Spares arrangement", short: "Spares wait", color: "var(--ph-spares)", cls: "fill-ph-spares" },

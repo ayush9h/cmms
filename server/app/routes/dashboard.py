@@ -2,10 +2,10 @@ from datetime import date
 
 from fastapi import APIRouter, Depends
 
-from .. import analytics, exports
-from ..auth import current_user
-from ..store import Store
-from .deps import MONTH, download, many, store
+from app import analytics, exports
+from app.auth import current_user
+from app.routes.deps import MONTH, download, many, store
+from app.store import Store
 
 router = APIRouter()
 

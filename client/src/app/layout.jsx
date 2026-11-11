@@ -1,6 +1,7 @@
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Shell } from "@/components/layout/shell";
+import { APP_NAME } from "@/lib/constants";
 
 const sans = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-jetbrains" });
@@ -8,8 +9,8 @@ const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variab
 const THEME_SCRIPT = `try{var t=localStorage.getItem("cmms.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export const metadata = {
-  title: { default: "Maintenance · OMR Bagla", template: "%s · OMR Bagla" },
-  description: "Asset downtime, repair delay and breakdown analysis for OMR Automotive maintenance.",
+  title: { default: `Maintenance · ${APP_NAME}`, template: `%s · ${APP_NAME}` },
+  description: "Asset downtime, repair delay and breakdown analysis for plant maintenance teams.",
 };
 
 export const viewport = {

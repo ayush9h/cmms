@@ -4,8 +4,8 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from ..store import SHIFTS
-from .base import Strict
+from app.schemas.base import Strict
+from app.store import SHIFTS
 
 
 class PpcIn(Strict):

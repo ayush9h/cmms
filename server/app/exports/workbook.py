@@ -4,7 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from .theme import BRAND
+from app.exports.theme import BRAND
 
 
 def write_table(ws, columns, rows):

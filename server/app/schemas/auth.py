@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from .base import Strict
+from app.schemas.base import Strict
 
 
 class LoginIn(Strict):

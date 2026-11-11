@@ -3,8 +3,8 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from ..store import CAUSES, DEFECTS, DISPOSITIONS, SHIFTS
-from .base import Strict
+from app.schemas.base import Strict
+from app.store import CAUSES, DEFECTS, DISPOSITIONS, SHIFTS
 
 
 class RejectionIn(Strict):

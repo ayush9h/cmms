@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from fastapi import Depends, HTTPException, Request, status
 
-from .config import settings
+from app.config import settings
 
 ROLES = ("employee", "manager")
 

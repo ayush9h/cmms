@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/provider";
 import { Logo } from "@/components/layout/logo";
+import { APP_FULL_NAME } from "@/lib/constants";
 import { ThemeSwitch } from "@/components/layout/theme";
 import { Field, btnBase, cx, formError, mono, shell } from "@/components/ui";
 
@@ -66,7 +67,7 @@ export function LoginForm({ next }) {
             <p className="text-xs text-muted">Employee or manager ID</p>
           </div>
           <form className="grid gap-4 p-5 sm:p-6 rounded-xl border border-line bg-panel shadow-card" onSubmit={submit}>
-          <Logo className="lg:hidden w-[170px] mb-1" label="OMR Bagla Automotive Systems India Ltd." />
+          <Logo className="lg:hidden w-[170px] mb-1" label={APP_FULL_NAME} />
           <Field label="User ID">
             <input name="user_id" autoComplete="username" required value={userId} onChange={(e) => setUserId(e.target.value.toLowerCase())} placeholder="e.g. ayushkumar" className={mono} autoFocus />
           </Field>

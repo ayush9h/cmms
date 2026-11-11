@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Response, status
 from sqlalchemy import text
 
-from ..db_service.db import engine
+from app.db_service.db import engine
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "@/auth/provider";
 import { Logo } from "@/components/layout/logo";
+import { APP_NAME } from "@/lib/constants";
 import { ThemeSwitch } from "@/components/layout/theme";
 import { TONE, cx, iconBtn } from "@/components/ui";
 
@@ -180,7 +181,7 @@ export function Sidebar() {
       )}
     >
       <div className={cx("contents md:flex md:items-center md:gap-2 md:h-[72px]", collapsed ? "md:justify-center" : "md:justify-between md:pl-5 md:pr-3")}>
-        <Link href="/" className={cx("order-[-2] flex pr-1.5 md:order-none md:pr-0", collapsed && "md:hidden")} aria-label="OMR Bagla maintenance dashboard">
+        <Link href="/" className={cx("order-[-2] flex pr-1.5 md:order-none md:pr-0", collapsed && "md:hidden")} aria-label={`${APP_NAME} maintenance dashboard`}>
           <Logo className="hidden md:block w-[150px]" />
           <Logo className="md:hidden w-16" compact />
         </Link>

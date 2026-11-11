@@ -1,8 +1,8 @@
 <div align="center">
 
-# OMR Bagla CMMS
+# CMMS Dashboard System
 
-**A maintenance and production platform for OMR Bagla Automotive Systems: breakdown logging, rejection tracking, OEE measurement, and reliability analytics.**
+**A customizable maintenance and production platform for manufacturing plants: breakdown logging, rejection tracking, OEE measurement, and reliability analytics.**
 
 [![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-orange)](#project-status)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org/)
@@ -19,7 +19,7 @@
 
 ## Overview
 
-OMR Bagla CMMS is a computerised maintenance management system for a die-casting and machining plant. Shop-floor teams log machine stoppages and shift production against the asset register; managers see downtime, repair-time breakdown, rejection causes, and Overall Equipment Effectiveness without maintaining spreadsheets.
+A computerised maintenance management system for die-casting and machining plants. Shop-floor teams log machine stoppages and shift production against the asset register; managers see downtime, repair-time breakdown, rejection causes, and Overall Equipment Effectiveness without maintaining spreadsheets.
 
 The platform pairs a Next.js App Router interface with a FastAPI service. Records live in PostgreSQL; the API keeps them in pandas frames so dashboards, filters, and exports are served without repeated round trips to the database.
 
@@ -76,4 +76,4 @@ Work in progress. Breakdown logging, production and rejection logging, the asset
 
 ## License
 
-Proprietary. Copyright © 2026 OMR Bagla Automotive Systems India Ltd. All rights reserved. See [`LICENSE`](LICENSE) for terms.
+Proprietary. Copyright © 2026 Ayush Kumar. All rights reserved. See [`LICENSE`](LICENSE) for terms.

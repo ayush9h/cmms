@@ -2,12 +2,12 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from .. import analytics
-from ..auth import current_user
-from ..db_service.models import PpcEntry
-from ..schemas import PpcIn
-from ..store import Store
-from .deps import store
+from app import analytics
+from app.auth import current_user
+from app.db_service.models import PpcEntry
+from app.routes.deps import store
+from app.schemas import PpcIn
+from app.store import Store
 
 router = APIRouter(prefix="/ppc")
 

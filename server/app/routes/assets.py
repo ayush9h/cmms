@@ -2,11 +2,11 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from .. import analytics
-from ..auth import current_user, require_manager
-from ..schemas import AssetIn
-from ..store import Store
-from .deps import PAGE, PAGE_SIZE, SEARCH, many, store
+from app import analytics
+from app.auth import current_user, require_manager
+from app.routes.deps import PAGE, PAGE_SIZE, SEARCH, many, store
+from app.schemas import AssetIn
+from app.store import Store
 
 router = APIRouter(prefix="/assets")
 

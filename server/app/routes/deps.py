@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import HTTPException, Query, Request, Response
 
-from ..store import Store
+from app.store import Store
 
 
 def store(request: Request) -> Store:

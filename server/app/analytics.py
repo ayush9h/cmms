@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from .store import (CATEGORIES, CAUSES, CLASSES, DEFECTS, DISPOSITIONS, PHASES,
+from app.store import (CATEGORIES, CAUSES, CLASSES, DEFECTS, DISPOSITIONS, PHASES,
                     SHIFTS, SHOPS, Store)
 
 DIMS = {"area": "area", "category": "category", "month": "month", "asset": "id"}

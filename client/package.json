@@ -1,5 +1,5 @@
 {
-  "name": "omr-bagla-cmms",
+  "name": "cmms-dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -5,7 +5,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
-from .theme import FONT, INK, LINE, LOGO, MUTED, PANEL, WHITE
+from app.exports.theme import BRAND_NAME, BRAND_RGB, FONT, INK, LINE, MUTED, PANEL, WHITE
 
 
 def add_text(
@@ -41,7 +41,7 @@ def new_slide(prs, title, sub):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_text(slide, 0.6, 0.45, 10.5, 0.6, title, 28, True)
     add_text(slide, 0.6, 1.05, 10.5, 0.4, sub, 13, color=MUTED)
-    slide.shapes.add_picture(str(LOGO), Inches(11.55), Inches(0.5), height=Inches(0.5))
+    add_text(slide, 11.0, 0.5, 1.75, 0.5, BRAND_NAME, 22, True, BRAND_RGB, PP_ALIGN.RIGHT)
     return slide
 
 
