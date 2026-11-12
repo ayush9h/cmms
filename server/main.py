@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="CMMS Dashboard System",
+    title="OPMAX Dashboard System",
     description="Customizable dashboard system for manufacturing plants.",
     version="0.1.0",
     docs_url="/api/docs",

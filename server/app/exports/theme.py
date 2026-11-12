@@ -1,7 +1,7 @@
 from pptx.dml.color import RGBColor
 
 # The wordmark printed on the deck; rename here to rebrand every export.
-BRAND_NAME = "CMMS"
+BRAND_NAME = "OPMAX"
 
 BRAND = "0091D0"
 INK = RGBColor(0x0F, 0x21, 0x30)
