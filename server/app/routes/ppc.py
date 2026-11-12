@@ -3,13 +3,14 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app import analytics
-from app.auth import current_user
+from app.auth import current_user, require_premium
 from app.db_service.models import PpcEntry
 from app.routes.deps import store
 from app.schemas import PpcIn
 from app.store import Store
 
-router = APIRouter(prefix="/ppc")
+# PPC feeds OEE, both Premium
+router = APIRouter(prefix="/ppc", dependencies=[Depends(require_premium)])
 
 
 def ppc_record(body: PpcIn, s: Store, user, entry_id=None):
@@ -40,7 +41,7 @@ def ppc_saved(body: PpcIn):
 
 @router.get("/find")
 def find_ppc(
-    asset_id: str = Query(pattern=r"^AST-\d{3,}$"),
+    asset_id: str = Query(min_length=1, max_length=20),
     date_from: date = Query(),
     date_to: date = Query(),
     s: Store = Depends(store),

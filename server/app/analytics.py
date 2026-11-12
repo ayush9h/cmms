@@ -227,6 +227,7 @@ def asset_page(store: Store, q=None, area=None, cls=None, page=1, size=25):
             "age": r.age,
             "application": r.application,
             "cls": r.cls,
+            "run_rate": None if pd.isna(r.run_rate) else float(r.run_rate),
             "downtime_h": hours(r.minutes),
             "events": int(r.events),
             "last_bd": r.last.strftime("%Y-%m-%d") if pd.notna(r.last) else None,

@@ -10,6 +10,7 @@ from fastapi import Depends, HTTPException, Request, status
 from app.config import settings
 
 ROLES = ("employee", "manager")
+TIERS = ("free", "premium")
 
 
 def verify_password(password: str, encoded: str) -> bool:
@@ -49,7 +50,12 @@ class LoginThrottle:
 
 
 def public(user):
-    return {"id": user.id, "name": user.name, "role": user.role}
+    return {
+        "id": user.id,
+        "name": user.name,
+        "role": user.role,
+        "tier": user.tier,
+    }
 
 
 def issue_token(user):
@@ -75,12 +81,28 @@ def current_user(request: Request):
         )
     if claims.get("role") not in ROLES:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in to continue.")
-    return {"id": claims["sub"], "name": claims["name"], "role": claims["role"]}
+    tier = claims.get("tier")
+    return {
+        "id": claims["sub"],
+        "name": claims["name"],
+        "role": claims["role"],
+        # tokens issued before tiers existed carry no claim; treat them as free
+        "tier": tier if tier in TIERS else "free",
+    }
 
 
 def require_manager(user=Depends(current_user)):
     if user["role"] != "manager":
         raise HTTPException(
             status.HTTP_403_FORBIDDEN, "Only managers can register assets."
+        )
+    return user
+
+
+def require_premium(user=Depends(current_user)):
+    if user["tier"] != "premium":
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "This is a Premium feature. Contact us to upgrade your account.",
         )
     return user

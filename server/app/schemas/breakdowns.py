@@ -3,13 +3,13 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from app.schemas.base import Strict
+from app.schemas.base import AssetId, Strict
 from app.store import CATEGORIES, SHIFTS
 
 
 class BreakdownIn(Strict):
     date: date
-    asset_id: str = Field(pattern=r"^AST-\d{3,}$")
+    asset_id: AssetId
     shift: Literal[SHIFTS]
     category: Literal[CATEGORIES]
     problem: str = Field(min_length=2, max_length=120)

@@ -3,14 +3,14 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from app.schemas.base import Strict
+from app.schemas.base import AssetId, Strict
 from app.store import CAUSES, DEFECTS, DISPOSITIONS, SHIFTS
 
 
 class RejectionIn(Strict):
     date: date
     shift: Literal[SHIFTS]
-    asset_id: str = Field(pattern=r"^AST-\d{3,}$")
+    asset_id: AssetId
     part: str = Field(min_length=2, max_length=60)
     produced: int = Field(ge=1, le=1_000_000)
     rej_production: int = Field(0, ge=0, le=1_000_000)

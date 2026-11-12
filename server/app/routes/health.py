@@ -25,8 +25,7 @@ async def perform_health_checks() -> dict:
     return {"status": "healthy" if healthy else "unhealthy", "checks": checks}
 
 
-@router.get("/health", summary="Backend health check")
-@router.head("/health", include_in_schema=False)
+@router.head("/health", description = "Health check")
 async def health(response: Response):
     result = await perform_health_checks()
     response.status_code = (

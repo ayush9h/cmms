@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends
 
 from app import analytics, exports
-from app.auth import current_user
+from app.auth import current_user, require_premium
 from app.routes.deps import MONTH, download, many, store
 from app.store import Store
 
@@ -29,7 +29,7 @@ def dashboard(
     )
 
 
-@router.get("/oee")
+@router.get("/oee", dependencies=[Depends(require_premium)])
 def oee(
     area: list[str] = many(),
     month: str | None = MONTH,

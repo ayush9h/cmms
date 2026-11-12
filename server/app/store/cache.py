@@ -1,5 +1,6 @@
 import asyncio
 
+from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 
 from app.db_service.db import async_session_maker, engine
@@ -55,6 +56,34 @@ class Store:
                 await self.insert(Asset.model_validate({**record, "sno": sno}))
             except IntegrityError as e:
                 raise KeyError(record["id"]) from e
+
+    async def update_asset(self, old_id: str, record: dict):
+        """Edit an asset. The id is a FK target, so a rename repoints children first."""
+        async with self.lock:
+            new_id = record["id"]
+            if new_id != old_id and self.has_asset(new_id):
+                raise KeyError(new_id)
+            async with async_session_maker() as session:
+                row = await session.get(Asset, old_id)
+                if row is None:
+                    # not LookupError: KeyError subclasses it, and callers tell them apart
+                    raise ValueError(old_id)
+                if new_id == old_id:
+                    for key, value in record.items():
+                        setattr(row, key, value)
+                else:
+                    # one transaction: add the new row, move children onto it, drop the old
+                    session.add(Asset.model_validate({**record, "sno": row.sno}))
+                    await session.flush()
+                    for model in (Breakdown, Rejection, PpcEntry):
+                        await session.execute(
+                            update(model)
+                            .where(model.asset_id == old_id)
+                            .values(asset_id=new_id)
+                        )
+                    await session.delete(row)
+                await session.commit()
+            await self.refresh()
 
     async def add_breakdown(self, record: dict):
         async with self.lock:

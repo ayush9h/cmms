@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from app.schemas.base import Strict
+from app.schemas.base import AssetId, Strict
 from app.store import SHIFTS
 
 
@@ -12,7 +12,7 @@ class PpcIn(Strict):
     date_from: date
     date_to: date
     running: dict[date, list[Literal[SHIFTS]]]
-    asset_id: str = Field(pattern=r"^AST-\d{3,}$")
+    asset_id: AssetId
     shift_hours: float = Field(gt=0, le=24)
     short_breaks: int = Field(0, ge=0, le=20)
     short_break_minutes: int = Field(0, ge=0, le=120)
