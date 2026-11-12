@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "@/auth/provider";
 import { UpgradeDialog } from "@/components/premium/upgrade-dialog";
 import { Logo } from "@/components/layout/logo";
@@ -34,45 +34,34 @@ const NAV = [
     exact: ["/oee"],
     children: [
       {
-        href: "/",
-        label: "Equipment Performance",
+        // /oee renders the OEE page and / renders the breakdown dashboard;
+        // the hrefs were swapped, so each label opened the other's page
+        href: "/oee",
+        label: "Manufacturing Performance",
         hint: "OEE: availability, performance and quality",
         Icon: Gauge,
         premium: true,
       },
       {
-        href: "/oee",
-        label: "Mfg. Performance",
+        href: "/",
+        label: "Equipment Performance",
         hint: "Breakdowns, downtime, MTTR and MTBF",
         Icon: MonitorActivity,
       },
     ],
   },
   {
-    label: "Mfg. Excellence",
+    label: "Manufacturing Excellence",
     Icon: ClipboardList,
-    premium: true,
-    match: ["/oee/ppc"],
+    heading: "Data Entry",
+    match: ["/oee/ppc", "/rejections"],
     children: [
       {
         href: "/oee/ppc",
         label: "PPC Entry",
         hint: "Shift production data that OEE is calculated from",
         Icon: ClipboardList,
-      },
-    ],
-  },
-  {
-    label: "Maint. Excellence",
-    Icon: ClipboardClock,
-    match: ["/breakdowns", "/rejections"],
-    children: [
-      {
-        href: "/breakdowns/new",
-        label: "Log Breakdown",
-        hint: "Machine stoppage and repair time",
-        Icon: Wrench,
-        tone: "bd",
+        premium: true,
       },
       {
         href: "/rejections/new",
@@ -80,6 +69,20 @@ const NAV = [
         hint: "Parts rejected by machine, shift and defect",
         Icon: Factory,
         tone: "pr",
+      },
+    ],
+  },
+  {
+    label: "Maintenance Excellence",
+    Icon: ClipboardClock,
+    match: ["/breakdowns"],
+    children: [
+      {
+        href: "/breakdowns/new",
+        label: "Log Breakdown",
+        hint: "Machine stoppage and repair time",
+        Icon: Wrench,
+        tone: "bd",
       },
     ],
   },
@@ -158,7 +161,7 @@ function NavGroup({
         : setFly((f) => !f);
 
   return (
-    <li className="relative" ref={root}>
+    <li className="relative min-w-0" ref={root}>
       <button
         type="button"
         onClick={click}
@@ -189,12 +192,12 @@ function NavGroup({
       {inline && (
         <ul
           id={id}
-          className="hidden md:grid gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong"
+          className="hidden md:grid min-w-0 gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong"
         >
           {group.children.map((c) => {
             const lock = childLocked(c);
             const current = !lock && path === c.href;
-            const cls = `relative flex w-full items-center gap-2 min-h-8 pl-3.5 pr-1 -ml-0.5 text-[13.5px] whitespace-nowrap transition-colors ${
+            const cls = `relative flex w-full min-w-0 items-center gap-2 min-h-8 pl-3.5 pr-2.5 -ml-0.5 text-left text-[13.5px] whitespace-nowrap transition-colors ${
               current
                 ? "font-semibold text-accent before:absolute before:left-0 before:inset-y-1 before:w-0.5 before:rounded-full before:bg-accent"
                 : "font-medium text-ink-2 hover:text-ink hover:before:absolute hover:before:left-0 hover:before:inset-y-1 hover:before:w-0.5 hover:before:rounded-full hover:before:bg-line-strong"
@@ -214,7 +217,7 @@ function NavGroup({
                       size={12}
                       strokeWidth={2}
                       aria-hidden="true"
-                      className="ml-auto mr-1.5 shrink-0 text-muted"
+                      className="ml-auto shrink-0 text-muted"
                     />
                     <span className="sr-only">(Premium)</span>
                   </>
@@ -222,9 +225,14 @@ function NavGroup({
               </>
             );
             return (
-              <li key={c.href}>
+              <li key={c.href} className="min-w-0">
                 {lock ? (
-                  <button type="button" onClick={onLocked} className={cls}>
+                  <button
+                    type="button"
+                    onClick={onLocked}
+                    title={c.label}
+                    className={cls}
+                  >
                     {body}
                   </button>
                 ) : (
@@ -312,7 +320,12 @@ function NavGroup({
     </li>
   );
 }
-const KEY = "cmms.sidebar.collapsed";
+const KEY = "opmax.sidebar.collapsed";
+const WIDTH_KEY = "opmax.sidebar.width";
+const MIN_W = 208;
+const MAX_W = 420;
+const DEF_W = 260;
+const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
 
 const initials = (name) =>
   name
@@ -327,14 +340,48 @@ export function Sidebar() {
   const { user, logout, isPremium } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [upgrade, setUpgrade] = useState(false);
+  const [width, setWidth] = useState(DEF_W);
+  const aside = useRef<any>(null);
   // Premium options stay visible for free users, marked, and open the dialog
   const lockedFor = (n: any) => Boolean(n.premium) && !isPremium;
 
   useEffect(() => {
     try {
       setCollapsed(localStorage.getItem(KEY) === "1");
+      const saved = Number(localStorage.getItem(WIDTH_KEY));
+      if (saved) setWidth(clampW(saved));
     } catch {}
   }, []);
+
+  const saveWidth = (w: number) => {
+    setWidth(w);
+    try {
+      localStorage.setItem(WIDTH_KEY, String(w));
+    } catch {}
+  };
+
+  // drag the right edge; pointer capture keeps it tracking outside the handle
+  const onDragMove = (e: any) => {
+    const left = aside.current?.getBoundingClientRect().left ?? 0;
+    setWidth(clampW(e.clientX - left));
+  };
+  const endDrag = (e: any) => {
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    e.currentTarget.onpointermove = null;
+    saveWidth(width);
+  };
+  const startDrag = (e: any) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const nudge = (e: any) => {
+    const step = e.shiftKey ? 32 : 16;
+    if (e.key === "ArrowLeft") saveWidth(clampW(width - step));
+    else if (e.key === "ArrowRight") saveWidth(clampW(width + step));
+    else if (e.key === "Home") saveWidth(DEF_W);
+    else return;
+    e.preventDefault();
+  };
 
   const toggle = () => {
     const next = !collapsed;
@@ -351,8 +398,32 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 py-2 border-b border-line bg-panel md:bg-transparent md:flex-col md:items-stretch md:gap-0 md:h-screen md:p-0 md:border-b-0 md:transition-[width] md:duration-200 md:ease-snap ${collapsed ? "md:w-[72px]" : "md:w-[260px]"}`}
+      ref={aside}
+      style={{ "--sidebar-w": `${width}px` } as any}
+      className={`sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 py-2 border-b border-line bg-panel md:bg-transparent md:flex-col md:items-stretch md:gap-0 md:h-screen md:p-0 md:border-b-0 md:ease-snap ${collapsed ? "md:w-[72px] md:transition-[width] md:duration-200" : "md:w-[var(--sidebar-w)]"}`}
     >
+      {/* drag the edge to resize; only meaningful on the wide layout */}
+      {!collapsed && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          aria-valuenow={width}
+          aria-valuemin={MIN_W}
+          aria-valuemax={MAX_W}
+          tabIndex={0}
+          onPointerDown={startDrag}
+          onPointerMove={(e) =>
+            e.currentTarget.hasPointerCapture?.(e.pointerId) && onDragMove(e)
+          }
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onDoubleClick={() => saveWidth(DEF_W)}
+          onKeyDown={nudge}
+          title="Drag to resize — double-click to reset"
+          className="hidden md:block absolute right-0 top-0 z-30 h-full w-1.5 cursor-col-resize touch-none after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-transparent hover:after:bg-accent focus-visible:after:bg-accent focus-visible:outline-none"
+        />
+      )}
       <div
         className={`contents md:flex md:items-center md:gap-2 md:h-[72px] ${
           collapsed ? "md:justify-center" : "md:justify-between md:pl-5 md:pr-3"
@@ -409,18 +480,28 @@ export function Sidebar() {
           <ul className="grid grid-flow-col md:grid-flow-row md:grid-cols-[minmax(0,1fr)] gap-0.5">
             {NAV.map((n) => {
               const locked = lockedFor(n);
+              const heading = n.heading && (
+                <li
+                  key={`${n.label}-heading`}
+                  className={`hidden px-2.5 pt-3 pb-1 text-[11px] font-medium uppercase tracking-[0.06em] text-muted ${!collapsed ? "md:block" : ""}`}
+                >
+                  {n.heading}
+                </li>
+              );
               if (n.children)
                 return (
-                  <NavGroup
-                    key={n.label}
-                    group={n}
-                    path={path}
-                    collapsed={collapsed}
-                    label={label}
-                    locked={locked}
-                    onLocked={() => setUpgrade(true)}
-                    isPremium={isPremium}
-                  />
+                  <Fragment key={n.label}>
+                    {heading}
+                    <NavGroup
+                      group={n}
+                      path={path}
+                      collapsed={collapsed}
+                      label={label}
+                      locked={locked}
+                      onLocked={() => setUpgrade(true)}
+                      isPremium={isPremium}
+                    />
+                  </Fragment>
                 );
               const { href, label: name, Icon } = n;
               const current = active(href);
@@ -438,27 +519,30 @@ export function Sidebar() {
               );
               const cls = `${ITEM} ${collapsed ? "md:px-0" : "md:justify-start md:px-2.5"} ${current && !locked ? ON : OFF}`;
               return (
-                <li key={href}>
-                  {locked ? (
-                    <button
-                      type="button"
-                      onClick={() => setUpgrade(true)}
-                      title={tip(name)}
-                      className={`${cls} md:w-full`}
-                    >
-                      {inner}
-                    </button>
-                  ) : (
-                    <Link
-                      href={href}
-                      title={tip(name)}
-                      aria-current={current ? "page" : undefined}
-                      className={cls}
-                    >
-                      {inner}
-                    </Link>
-                  )}
-                </li>
+                <Fragment key={href}>
+                  {heading}
+                  <li>
+                    {locked ? (
+                      <button
+                        type="button"
+                        onClick={() => setUpgrade(true)}
+                        title={tip(name)}
+                        className={`${cls} md:w-full`}
+                      >
+                        {inner}
+                      </button>
+                    ) : (
+                      <Link
+                        href={href}
+                        title={tip(name)}
+                        aria-current={current ? "page" : undefined}
+                        className={cls}
+                      >
+                        {inner}
+                      </Link>
+                    )}
+                  </li>
+                </Fragment>
               );
             })}
           </ul>

@@ -26,7 +26,7 @@ export async function getJson(url: string, init?: RequestInit) {
   const r = await fetch(url, init);
   const body = await r.json().catch(() => null);
   if (r.status === 401 && !url.startsWith("/api/auth/login"))
-    window.dispatchEvent(new Event("cmms:unauthorized"));
+    window.dispatchEvent(new Event("opmax:unauthorized"));
   if (!r.ok) {
     const err: Error & { status?: number } = new Error(
       detail(body?.detail, r.status),

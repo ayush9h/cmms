@@ -135,7 +135,7 @@ export function Dashboard() {
         aria-busy={busy}
       >
         {error && !data ? (
-          <ErrorState title="Can’t reach the CMMS server">
+          <ErrorState title="Can’t reach the OPMAX server">
             <p>
               The dashboard reads from the FastAPI service on port 8000. Start
               it with{" "}

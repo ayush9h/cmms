@@ -206,7 +206,7 @@ function AssetForm({ assetId }: any) {
             }
             role="alert"
           >
-            Can’t reach the CMMS server:{" "}
+            Can’t reach the OPMAX server:{" "}
             {(options.error ?? assets.error).message}.
           </p>
         ) : missing ? (

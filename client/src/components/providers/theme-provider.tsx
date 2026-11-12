@@ -11,7 +11,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       attribute="data-theme"
       defaultTheme="system"
       enableSystem
-      storageKey="cmms.theme"
+      storageKey="opmax.theme"
       disableTransitionOnChange
       {...props}
     >

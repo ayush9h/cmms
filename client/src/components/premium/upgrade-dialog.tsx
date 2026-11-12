@@ -18,9 +18,9 @@ const PERKS = [
 ];
 
 export function UpgradeDialog({ open, onOpenChange }: any) {
-  const subject = encodeURIComponent("CMMS Premium upgrade");
+  const subject = encodeURIComponent("OPMAX Premium upgrade");
   const body = encodeURIComponent(
-    "Hello,\n\nI'd like to upgrade my CMMS account to Premium.\n\nUser ID:\nPlant:\n\nThanks",
+    "Hello,\n\nI'd like to upgrade my OPMAX account to Premium.\n\nUser ID:\nPlant:\n\nThanks",
   );
 
   return (

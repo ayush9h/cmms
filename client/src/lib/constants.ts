@@ -1,4 +1,4 @@
-export const APP_NAME = "CMMS";
+export const APP_NAME = "OPMAX";
 export const APP_TAGLINE = "Dashboard System";
 export const APP_FULL_NAME = `${APP_NAME} ${APP_TAGLINE}`;
 

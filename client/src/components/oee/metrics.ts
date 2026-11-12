@@ -9,8 +9,10 @@ export const METRICS = [
     key: "oee",
     label: "OEE",
     world: 85,
-    color: "var(--ink)",
-    bar: "bg-ink",
+    // its own token, not --ink: --ink is the body text colour, so the legend
+    // swatch read as a bullet rather than a series mark
+    color: "var(--cat-oee)",
+    bar: "bg-cat-oee",
     note: (k) => (k.entries ? "Availability × Performance × Quality" : none),
   },
   {

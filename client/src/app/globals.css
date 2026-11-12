@@ -53,6 +53,7 @@
   --cat-4: #eda100;
   --cat-5: #e87ba4;
   --cat-6: #008300;
+  --cat-oee: #3f3d56;
   --ph-diagnose: #2a78d6;
   --ph-spares: #eb6834;
   --ph-wrench: #199e70;
@@ -131,6 +132,7 @@
     --cat-4: #c49a32;
     --cat-5: #c6668e;
     --cat-6: #46994f;
+    --cat-oee: #b8bcd9;
     --ph-diagnose: #4a8be0;
     --ph-spares: #d46b3e;
     --ph-wrench: #31a07a;
@@ -205,6 +207,7 @@
   --cat-4: #c49a32;
   --cat-5: #c6668e;
   --cat-6: #46994f;
+  --cat-oee: #b8bcd9;
   --ph-diagnose: #4a8be0;
   --ph-spares: #d46b3e;
   --ph-wrench: #31a07a;
@@ -277,6 +280,7 @@
   --color-cat-4: var(--cat-4);
   --color-cat-5: var(--cat-5);
   --color-cat-6: var(--cat-6);
+  --color-cat-oee: var(--cat-oee);
   --color-ph-diagnose: var(--ph-diagnose);
   --color-ph-spares: var(--ph-spares);
   --color-ph-wrench: var(--ph-wrench);

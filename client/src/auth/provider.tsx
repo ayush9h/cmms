@@ -30,8 +30,8 @@ export function AuthProvider({ children }: any) {
   useEffect(() => {
     refresh();
     const signedOut = () => setState({ user: null, loading: false });
-    window.addEventListener("cmms:unauthorized", signedOut);
-    return () => window.removeEventListener("cmms:unauthorized", signedOut);
+    window.addEventListener("opmax:unauthorized", signedOut);
+    return () => window.removeEventListener("opmax:unauthorized", signedOut);
   }, [refresh]);
 
   const value = useMemo(

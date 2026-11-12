@@ -359,7 +359,7 @@ export function Oee({ logged }: any) {
                         className="inline-flex items-center gap-1.5"
                       >
                         <i
-                          className="size-2.5 rounded-[3px]"
+                          className="size-2.5 shrink-0 rounded-[3px] ring-1 ring-line"
                           style={{ background: m.color }}
                         />
                         {m.label}

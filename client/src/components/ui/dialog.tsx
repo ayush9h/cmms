@@ -4,7 +4,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// shadcn/ui Dialog, restyled on the CMMS tokens (bg-panel, border-line,
+// shadcn/ui Dialog, restyled on the OPMAX tokens (bg-panel, border-line,
 // shadow-pop) so it matches the rest of the app rather than shadcn defaults.
 
 export const Dialog = DialogPrimitive.Root;

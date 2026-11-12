@@ -1,5 +1,5 @@
 {
-  "name": "cmms-dashboard",
+  "name": "opmax-dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",

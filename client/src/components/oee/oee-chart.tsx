@@ -36,7 +36,7 @@ export function OeeChart({ rows, xKey, tick, title, selected, onPick }: any) {
               {METRICS.map((m) => (
                 <span key={m.key} className="flex items-center gap-2">
                   <i
-                    className="size-2 rounded-[2px]"
+                    className="size-2 shrink-0 rounded-[2px] ring-1 ring-line"
                     style={{ background: m.color }}
                   />
                   <span className="flex-1">{m.label}</span>

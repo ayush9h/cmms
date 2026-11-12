@@ -166,7 +166,7 @@ export function BreakdownForm({ edit }: any) {
             }
             role="alert"
           >
-            Can’t reach the CMMS server: {options.error.message}.
+            Can’t reach the OPMAX server: {options.error.message}.
           </p>
         ) : !options.data || (edit && !entry.data) ? (
           <div
