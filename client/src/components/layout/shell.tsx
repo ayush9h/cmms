@@ -37,7 +37,7 @@ function Gate({ children }: any) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[auto_minmax(0,1fr)] min-h-screen md:h-screen">
       <Sidebar />
-      <div className="min-w-0 bg-canvas md:my-2 md:mr-2 md:rounded-2xl md:border md:border-line md:shadow-card md:overflow-y-auto">
+      <div className="min-w-0 bg-canvas md:my-2 md:mr-2 md:rounded-sm md:border md:border-line md:shadow-card md:overflow-y-auto">
         {children}
       </div>
     </div>

@@ -7,7 +7,6 @@ import {
   Factory,
   Gauge,
   LayoutDashboard,
-  LogOut,
   PanelLeftClose,
   Lock,
   PanelLeftOpen,
@@ -23,7 +22,7 @@ import { useAuth } from "@/auth/provider";
 import { UpgradeDialog } from "@/components/premium/upgrade-dialog";
 import { Logo } from "@/components/layout/logo";
 import { APP_NAME } from "@/lib/constants";
-import { ThemeSwitch } from "@/components/layout/theme";
+import { UserMenu } from "@/components/layout/user-menu";
 
 const NAV = [
   {
@@ -90,7 +89,7 @@ const NAV = [
 ];
 const DESKTOP = "(min-width: 861px)";
 const ITEM =
-  "relative flex items-center justify-center gap-2.5 w-10 min-w-0 min-h-[38px] rounded-lg border text-sm transition-colors md:w-auto";
+  "relative flex items-center justify-center gap-2.5 w-10 min-w-0 min-h-[38px] rounded-sm border text-sm transition-colors md:w-auto";
 const ON =
   "border-line bg-nav-active-bg text-nav-active-ink font-semibold shadow-card";
 const OFF =
@@ -257,7 +256,7 @@ function NavGroup({
           role="menu"
           aria-label={group.label}
           className={
-            "absolute z-40 top-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-72 p-1.5 rounded-xl border border-line bg-panel shadow-pop animate-pop md:top-0 md:left-[calc(100%+14px)] md:translate-x-0"
+            "absolute z-40 top-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-72 p-1.5 rounded-sm border border-line bg-panel shadow-pop animate-pop md:top-0 md:left-[calc(100%+14px)] md:translate-x-0"
           }
         >
           <p className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
@@ -266,11 +265,11 @@ function NavGroup({
           {group.children.map((c) => {
             const lock = childLocked(c);
             const current = !lock && path === c.href;
-            const cls = `flex w-full items-start gap-3 p-2.5 rounded-lg text-left ${current ? "bg-shell" : "hover:bg-hover"}`;
+            const cls = `flex w-full items-start gap-3 p-2.5 rounded-sm text-left ${current ? "bg-shell" : "hover:bg-hover"}`;
             const body = (
               <>
                 <span
-                  className={`grid place-items-center size-8 shrink-0 rounded-md ${c.tone === "bd" ? "bg-bd-soft text-bd" : c.tone === "pr" ? "bg-pr-soft text-pr" : "bg-shell text-ink-2"}`}
+                  className={`grid place-items-center size-8 shrink-0 rounded-sm ${c.tone === "bd" ? "bg-bd-soft text-bd" : c.tone === "pr" ? "bg-pr-soft text-pr" : "bg-shell text-ink-2"}`}
                 >
                   <c.Icon size={16} strokeWidth={1.8} aria-hidden="true" />
                 </span>
@@ -326,14 +325,6 @@ const MIN_W = 208;
 const MAX_W = 420;
 const DEF_W = 260;
 const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
-
-const initials = (name) =>
-  name
-    .split(/\s+/)
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
 export function Sidebar() {
   const path = usePathname();
@@ -442,7 +433,7 @@ export function Sidebar() {
           aria-expanded={!collapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="group hidden md:grid place-items-center size-9 shrink-0 rounded-lg text-muted hover:bg-line hover:text-ink"
+          className="group hidden md:grid place-items-center size-9 shrink-0 rounded-sm text-muted hover:bg-line hover:text-ink"
         >
           {collapsed && (
             <svg
@@ -552,46 +543,7 @@ export function Sidebar() {
       <div
         className={`order-2 grid gap-2.5 md:order-none md:mt-auto ${collapsed ? "md:justify-items-center md:py-3" : "md:p-3"}`}
       >
-        <ThemeSwitch className={`hidden ${!collapsed ? "md:grid" : ""}`} />
-        <div
-          className={`flex items-center gap-0.5 min-w-0 md:gap-2.5 ${
-            collapsed
-              ? "md:flex-col md:gap-1.5"
-              : "md:p-2 md:rounded-xl md:border md:border-line md:bg-panel md:shadow-card"
-          }`}
-        >
-          <span
-            className="hidden md:grid place-items-center size-8 shrink-0 rounded-lg bg-brand-soft text-accent text-xs font-bold"
-            aria-hidden="true"
-          >
-            {initials(user.name)}
-          </span>
-          <span
-            className={`hidden flex-1 min-w-0 ${!collapsed ? "md:grid" : ""}`}
-          >
-            <span className="truncate text-[13px] font-semibold">
-              {user.name}
-            </span>
-            <span className="truncate text-[11.5px] text-muted">
-              {user.id} · {user.role === "manager" ? "Manager" : "Employee"}
-            </span>
-          </span>
-          <ThemeSwitch
-            compact
-            className={collapsed ? undefined : "md:hidden"}
-          />
-          <button
-            type="button"
-            className={
-              "grid place-items-center size-8 shrink-0 rounded-lg text-muted hover:bg-hover hover:text-ink"
-            }
-            onClick={() => logout()}
-            aria-label="Sign out"
-            title="Sign out"
-          >
-            <LogOut size={18} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </div>
+        <UserMenu user={user} logout={logout} collapsed={collapsed} />
       </div>
       <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
     </aside>

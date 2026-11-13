@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Presentation } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -10,10 +11,10 @@ import { useJson } from "@/lib/hooks";
 import { Kpis, KpiSkeleton } from "./kpis";
 
 const BONE = (
-  <div className={"min-w-0 rounded-2xl border border-line bg-shell p-1.5"}>
+  <div className={"min-w-0 rounded-sm border border-line bg-shell p-1.5"}>
     <div
       className={
-        "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+        "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
       }
     />
   </div>
@@ -142,13 +143,7 @@ export function Dashboard() {
               <code className="font-mono text-[0.86em]">uvicorn main:app</code>{" "}
               in the server folder, then retry.
             </p>
-            <button
-              type="button"
-              className={
-                "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-              }
-              onClick={retry}
-            >
+            <button type="button" className={buttonVariants()} onClick={retry}>
               Retry
             </button>
           </ErrorState>
@@ -166,16 +161,17 @@ export function Dashboard() {
             {error && (
               <p
                 className={
-                  "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+                  "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
                 }
                 role="alert"
               >
                 Couldn’t refresh: {error.message}. Showing the last loaded view.{" "}
                 <button
                   type="button"
-                  className={
-                    "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                  }
+                  className={buttonVariants({
+                    variant: "link",
+                    size: "inline",
+                  })}
                   onClick={retry}
                 >
                   Retry

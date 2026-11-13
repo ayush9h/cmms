@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Check, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ const MONTH: [string, string] = [
 const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const toNum = (v) => (v === "" ? 0 : Math.max(0, Number(v)) || 0);
 const READOUT =
-  "flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-md border border-dashed border-line-strong bg-panel-2";
+  "flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-sm border border-dashed border-line-strong bg-panel-2";
 const BLANK = {
   shift_hours: "8",
   short_breaks: "2",
@@ -76,7 +77,7 @@ function Count({ label, hint, bind, step = 1, min = 0, max, required }: any) {
 }
 
 const NAV =
-  "grid place-items-center size-8 rounded-lg border border-line-strong text-ink-2 hover:bg-hover hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed";
+  "grid place-items-center size-8 rounded-sm border border-line-strong text-ink-2 hover:bg-hover hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed";
 
 function Calendar({ from, to, running, shifts, onChange }: any) {
   const [page, setPage] = useState(0);
@@ -108,7 +109,7 @@ function Calendar({ from, to, running, shifts, onChange }: any) {
   return (
     <div className="sm:col-span-3 grid gap-4">
       <section
-        className="overflow-hidden rounded-xl border border-line-strong shadow-card"
+        className="overflow-hidden rounded-sm border border-line-strong shadow-card"
         aria-label={fmt.monthLong(month)}
       >
         <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-3 py-2.5 bg-panel border-b border-line-strong">
@@ -201,7 +202,7 @@ function Calendar({ from, to, running, shifts, onChange }: any) {
                       aria-pressed={on.includes(s)}
                       aria-label={`${fmt.day(day)} shift ${s}`}
                       onClick={() => flip(day, s)}
-                      className={`h-5 sm:h-6 rounded-md text-[11px] font-semibold transition-colors ${
+                      className={`h-5 sm:h-6 rounded-sm text-[11px] font-semibold transition-colors ${
                         on.includes(s)
                           ? "bg-pr text-white"
                           : "border border-line text-muted hover:border-line-strong hover:text-ink"
@@ -398,12 +399,7 @@ export function PpcForm() {
         icon={ClipboardList}
         tone="pr"
       >
-        <Link
-          href="/oee"
-          className={
-            "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-          }
-        >
+        <Link href="/oee" className={buttonVariants({ variant: "secondary" })}>
           OEE overview
         </Link>
       </PageHead>
@@ -413,7 +409,7 @@ export function PpcForm() {
         {options.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -421,15 +417,13 @@ export function PpcForm() {
           </p>
         ) : !options.data ? (
           <div
-            className={
-              "rounded-2xl border border-line bg-panel shadow-card p-5"
-            }
+            className={"rounded-sm border border-line bg-panel shadow-card p-5"}
             role="status"
             aria-label="Loading form"
           >
             <div
               className={
-                "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
               }
             />
           </div>
@@ -438,7 +432,7 @@ export function PpcForm() {
             {entryId && (
               <p
                 className={
-                  "mb-4 px-3.5 py-2.5 rounded-md border border-ok-line bg-ok-bg text-ok-ink"
+                  "mb-4 px-3.5 py-2.5 rounded-sm border border-ok-line bg-ok-bg text-ok-ink"
                 }
                 role="status"
               >
@@ -449,7 +443,7 @@ export function PpcForm() {
             )}
             <form
               className={
-                "rounded-2xl border border-line bg-panel shadow-card border-t-[3px] border-t-pr"
+                "rounded-sm border border-line bg-panel shadow-card border-t-[3px] border-t-pr"
               }
               onSubmit={submit}
             >
@@ -512,7 +506,7 @@ export function PpcForm() {
                     return (
                       <label
                         key={s}
-                        className={`inline-flex items-center gap-2 h-9 pl-2 pr-3 rounded-lg border text-sm font-semibold cursor-pointer ${
+                        className={`inline-flex items-center gap-2 h-9 pl-2 pr-3 rounded-sm border text-sm font-semibold cursor-pointer ${
                           on
                             ? "border-pr bg-pr-soft text-pr"
                             : "border-line-strong text-ink-2 hover:border-field-hover"
@@ -664,17 +658,13 @@ export function PpcForm() {
               >
                 <Link
                   href="/oee"
-                  className={
-                    "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-                  }
+                  className={buttonVariants({ variant: "secondary" })}
                 >
                   Cancel
                 </Link>
                 <button
                   type="submit"
-                  className={
-                    "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-                  }
+                  className={buttonVariants()}
                   disabled={saving}
                 >
                   {saving ? "Saving…" : entryId ? "Update entry" : "Save entry"}

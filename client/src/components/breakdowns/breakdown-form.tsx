@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -137,9 +138,7 @@ export function BreakdownForm({ edit }: any) {
       >
         <Link
           href="/breakdowns"
-          className={
-            "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-          }
+          className={buttonVariants({ variant: "secondary" })}
         >
           Breakdown log
         </Link>
@@ -150,7 +149,7 @@ export function BreakdownForm({ edit }: any) {
         {entry.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -162,7 +161,7 @@ export function BreakdownForm({ edit }: any) {
         ) : options.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -170,22 +169,20 @@ export function BreakdownForm({ edit }: any) {
           </p>
         ) : !options.data || (edit && !entry.data) ? (
           <div
-            className={
-              "rounded-2xl border border-line bg-panel shadow-card p-5"
-            }
+            className={"rounded-sm border border-line bg-panel shadow-card p-5"}
             role="status"
             aria-label="Loading form"
           >
             <div
               className={
-                "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
               }
             />
           </div>
         ) : (
           <form
             className={
-              "rounded-2xl border border-line bg-panel shadow-card border-t-[3px] border-t-bd"
+              "rounded-sm border border-line bg-panel shadow-card border-t-[3px] border-t-bd"
             }
             onSubmit={submit}
           >
@@ -324,7 +321,7 @@ export function BreakdownForm({ edit }: any) {
               ))}
               <Field as="div" label="Total downtime">
                 <output
-                  className="flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-md border border-dashed border-line-strong bg-panel-2"
+                  className="flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-sm border border-dashed border-line-strong bg-panel-2"
                   aria-live="polite"
                 >
                   <b className="text-[15px] font-[650] tabular-nums">
@@ -349,17 +346,13 @@ export function BreakdownForm({ edit }: any) {
             >
               <Link
                 href="/breakdowns"
-                className={
-                  "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-                }
+                className={buttonVariants({ variant: "secondary" })}
               >
                 Cancel
               </Link>
               <button
                 type="submit"
-                className={
-                  "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-                }
+                className={buttonVariants()}
                 disabled={saving}
               >
                 {saving ? "Saving…" : edit ? "Save changes" : "Log breakdown"}

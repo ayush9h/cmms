@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -38,7 +40,11 @@ export function ThemeSwitch({ compact, labels, className }: any) {
     return (
       <button
         type="button"
-        className={`grid place-items-center size-8 shrink-0 rounded-lg text-muted hover:bg-hover hover:text-ink ${className || ""}`}
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon-sm" }),
+          "text-muted",
+          className,
+        )}
         onClick={() => apply(next.value)}
         title={label}
         aria-label={label}
@@ -50,7 +56,7 @@ export function ThemeSwitch({ compact, labels, className }: any) {
 
   return (
     <div
-      className={`grid-cols-3 gap-0.5 p-[3px] rounded-[10px] border border-line bg-line/60 ${(className ?? "grid") || ""}`}
+      className={`grid-cols-3 gap-0.5 p-[3px] rounded-sm border border-line bg-line/60 ${(className ?? "grid") || ""}`}
       role="group"
       aria-label="Theme"
     >
@@ -61,7 +67,7 @@ export function ThemeSwitch({ compact, labels, className }: any) {
           aria-pressed={mode === value}
           onClick={() => apply(value)}
           title={label}
-          className={`inline-flex items-center justify-center gap-1.5 min-h-7 px-1.5 rounded-md text-xs font-medium ${
+          className={`inline-flex items-center justify-center gap-1.5 min-h-7 px-1.5 rounded-sm text-xs font-medium ${
             mode === value
               ? "bg-panel text-ink shadow-card"
               : "text-muted hover:text-ink"

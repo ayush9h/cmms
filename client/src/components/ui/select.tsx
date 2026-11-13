@@ -111,7 +111,7 @@ export function Select({
         disabled={disabled}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
-        className={`flex items-center gap-2 w-full min-w-0 px-3 rounded-lg border bg-panel text-ink text-left transition-[border-color,box-shadow] hover:border-field-hover focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-[inset_0_0_0_1px_var(--accent)] disabled:opacity-60 disabled:cursor-progress ${small ? "h-[34px]" : "h-10"} ${
+        className={`flex items-center gap-2 w-full min-w-0 px-3 rounded-sm border bg-panel text-ink text-left transition-[border-color,box-shadow] hover:border-field-hover focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-[inset_0_0_0_1px_var(--accent)] disabled:opacity-60 disabled:cursor-progress ${small ? "h-[34px]" : "h-10"} ${
           open
             ? "border-accent shadow-[inset_0_0_0_1px_var(--accent)]"
             : "border-line-strong shadow-card"
@@ -132,7 +132,7 @@ export function Select({
           {current?.label ?? placeholder}
         </span>
         {picked.length > 1 && (
-          <span className="shrink-0 px-1.5 rounded-md border border-line bg-panel-2 text-xs font-semibold text-muted">
+          <span className="shrink-0 px-1.5 rounded-sm border border-line bg-panel-2 text-xs font-semibold text-muted">
             +{picked.length - 1}
           </span>
         )}
@@ -151,7 +151,7 @@ export function Select({
           onMouseDown={(e) => e.preventDefault()}
           aria-labelledby={`${id}n`}
           ref={list}
-          className={`absolute z-20 left-0 min-w-full max-h-80 overflow-y-auto p-1 rounded-[10px] border border-line bg-panel shadow-pop animate-pop ${up ? "bottom-[calc(100%+6px)]" : "top-[calc(100%+6px)]"}`}
+          className={`absolute z-20 left-0 min-w-full max-h-80 overflow-y-auto p-1 rounded-sm border border-line bg-panel shadow-pop animate-pop ${up ? "bottom-[calc(100%+6px)]" : "top-[calc(100%+6px)]"}`}
         >
           {all.map((o, i) => {
             const selected = isOn(o);
@@ -163,7 +163,7 @@ export function Select({
                 aria-selected={selected}
                 onPointerEnter={() => setActive(i)}
                 onClick={() => choose(o)}
-                className={`flex items-center justify-between gap-4 min-h-9 px-2.5 rounded-md text-sm whitespace-nowrap cursor-pointer ${i === active ? "bg-ground" : ""} ${selected ? "font-semibold text-accent" : ""}`}
+                className={`flex items-center justify-between gap-4 min-h-9 px-2.5 rounded-sm text-sm whitespace-nowrap cursor-pointer ${i === active ? "bg-ground" : ""} ${selected ? "font-semibold text-accent" : ""}`}
               >
                 {o.label}
                 <Check

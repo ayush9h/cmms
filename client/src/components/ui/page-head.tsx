@@ -1,11 +1,11 @@
+import { buttonVariants } from "@/components/ui/button";
+
 export function ExportLink({ href, label, Icon }: any) {
   return (
     <a
       href={href}
       download
-      className={
-        "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover gap-2"
-      }
+      className={buttonVariants({ variant: "secondary" })}
       aria-label={label}
       title={label}
     >
@@ -21,7 +21,7 @@ export function PageHead({ title, sub, icon: Icon, tone, children }: any) {
       <div className="flex items-center gap-3 min-w-0">
         {Icon && (
           <span
-            className={`grid place-items-center size-10 shrink-0 rounded-lg ${tone === "bd" ? "bg-bd-soft text-bd" : "bg-pr-soft text-pr"}`}
+            className={`grid place-items-center size-10 shrink-0 rounded-sm ${tone === "bd" ? "bg-bd-soft text-bd" : "bg-pr-soft text-pr"}`}
             aria-hidden="true"
           >
             <Icon size={20} strokeWidth={1.8} />
@@ -65,7 +65,7 @@ export function Card({
       ref={ref}
       style={style}
       aria-labelledby={id}
-      className={`min-w-0 rounded-2xl border border-line bg-shell p-1.5 flex flex-col ${className || ""}`}
+      className={`min-w-0 rounded-sm border border-line bg-shell p-1.5 flex flex-col ${className || ""}`}
     >
       <div className="flex items-center justify-between gap-3 min-h-8 px-2.5 pb-1.5">
         <h2
@@ -82,7 +82,7 @@ export function Card({
       </div>
       <div
         className={
-          "min-w-0 rounded-xl border border-line bg-panel shadow-card p-4 sm:p-5 flex-1"
+          "min-w-0 rounded-sm border border-line bg-panel shadow-card p-4 sm:p-5 flex-1"
         }
       >
         {children}

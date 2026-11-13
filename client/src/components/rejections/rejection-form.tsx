@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Factory } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -132,9 +133,7 @@ export function RejectionForm({ edit }: any) {
       >
         <Link
           href="/rejections"
-          className={
-            "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-          }
+          className={buttonVariants({ variant: "secondary" })}
         >
           Production log
         </Link>
@@ -145,7 +144,7 @@ export function RejectionForm({ edit }: any) {
         {entry.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -157,7 +156,7 @@ export function RejectionForm({ edit }: any) {
         ) : options.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -165,22 +164,20 @@ export function RejectionForm({ edit }: any) {
           </p>
         ) : !options.data || (edit && !entry.data) ? (
           <div
-            className={
-              "rounded-2xl border border-line bg-panel shadow-card p-5"
-            }
+            className={"rounded-sm border border-line bg-panel shadow-card p-5"}
             role="status"
             aria-label="Loading form"
           >
             <div
               className={
-                "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
               }
             />
           </div>
         ) : (
           <form
             className={
-              "rounded-2xl border border-line bg-panel shadow-card border-t-[3px] border-t-pr"
+              "rounded-sm border border-line bg-panel shadow-card border-t-[3px] border-t-pr"
             }
             onSubmit={submit}
           >
@@ -275,7 +272,7 @@ export function RejectionForm({ edit }: any) {
                   hint={over ? "More than the quantity produced." : undefined}
                 >
                   <output
-                    className={`flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-md border border-dashed bg-panel-2 ${over ? "border-crit" : "border-line-strong"}`}
+                    className={`flex items-baseline justify-between gap-2 h-10 px-3 py-1 leading-[30px] whitespace-nowrap rounded-sm border border-dashed bg-panel-2 ${over ? "border-crit" : "border-line-strong"}`}
                     aria-live="polite"
                   >
                     <b className="text-[15px] font-[650] tabular-nums">
@@ -330,7 +327,7 @@ export function RejectionForm({ edit }: any) {
                             role="radio"
                             aria-checked={on}
                             onClick={() => set("disposition")(d)}
-                            className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-colors ${
+                            className={`flex items-start gap-3 p-3 rounded-sm border text-left transition-colors ${
                               on
                                 ? "border-accent bg-brand-soft shadow-[inset_0_0_0_1px_var(--accent)]"
                                 : "border-line-strong hover:border-field-hover"
@@ -368,17 +365,13 @@ export function RejectionForm({ edit }: any) {
             >
               <Link
                 href="/rejections"
-                className={
-                  "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-                }
+                className={buttonVariants({ variant: "secondary" })}
               >
                 Cancel
               </Link>
               <button
                 type="submit"
-                className={
-                  "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-                }
+                className={buttonVariants()}
                 disabled={saving}
               >
                 {saving ? "Saving…" : edit ? "Save changes" : "Save entry"}

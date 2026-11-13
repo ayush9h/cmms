@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/auth/provider";
@@ -16,7 +17,7 @@ export function PremiumGate({ children }: any) {
     return (
       <main className="px-[clamp(16px,2.5vw,28px)] pt-2 pb-10">
         <div
-          className="h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+          className="h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
           role="status"
           aria-label="Loading"
         />
@@ -41,13 +42,13 @@ export function PremiumGate({ children }: any) {
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover min-h-10 px-4"
+              className={buttonVariants()}
             >
               See what’s included
             </button>
             <Link
               href="/breakdowns/new"
-              className="inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
+              className={buttonVariants({ variant: "secondary" })}
             >
               Log a breakdown
             </Link>

@@ -38,10 +38,10 @@ const KPIS = [
 ];
 const GRID = "grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3";
 const HEAD = "flex items-center justify-between gap-2 min-h-8 px-2.5 pb-1.5";
-const BODY = "rounded-xl border border-line bg-panel shadow-card p-4";
+const BODY = "rounded-sm border border-line bg-panel shadow-card p-4";
 const TONE = { good: "text-good-ink", bad: "text-bad-ink", flat: "text-muted" };
 const bone =
-  "block h-3 my-1 rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer";
+  "block h-3 my-1 rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer";
 
 export function KpiSkeleton() {
   return (
@@ -50,7 +50,7 @@ export function KpiSkeleton() {
         <div
           key={i}
           className={
-            "flex min-w-0 flex-col rounded-2xl border border-line bg-shell p-1.5"
+            "flex min-w-0 flex-col rounded-sm border border-line bg-shell p-1.5"
           }
         >
           <div className={HEAD}>
@@ -107,7 +107,7 @@ function Kpi({ index, spec, value, note, monthly, refIndex }: any) {
   return (
     <div
       className={
-        "flex min-w-0 flex-col rounded-2xl border border-line bg-shell p-1.5 animate-rise"
+        "flex min-w-0 flex-col rounded-sm border border-line bg-shell p-1.5 animate-rise"
       }
       style={{ animationDelay: `${index * 40}ms` }}
       role="group"

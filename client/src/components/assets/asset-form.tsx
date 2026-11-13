@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useReducer } from "react";
@@ -93,12 +94,7 @@ function NotPermitted({ edit }: any) {
             Ask a maintenance manager to make the change. You can still log
             breakdowns against any registered asset.
           </p>
-          <Link
-            href="/breakdowns/new"
-            className={
-              "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-            }
-          >
+          <Link href="/breakdowns/new" className={buttonVariants()}>
             Log breakdown
           </Link>
         </ErrorState>
@@ -202,7 +198,7 @@ function AssetForm({ assetId }: any) {
         {options.error || assets.error ? (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
             }
             role="alert"
           >
@@ -212,32 +208,25 @@ function AssetForm({ assetId }: any) {
         ) : missing ? (
           <ErrorState title={`${assetId} is not in the asset register`}>
             <p>It may have been renamed or removed.</p>
-            <Link
-              href="/assets"
-              className={
-                "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-              }
-            >
+            <Link href="/assets" className={buttonVariants()}>
               Back to register
             </Link>
           </ErrorState>
         ) : !ready ? (
           <div
-            className={
-              "rounded-2xl border border-line bg-panel shadow-card p-5"
-            }
+            className={"rounded-sm border border-line bg-panel shadow-card p-5"}
             role="status"
             aria-label="Loading form"
           >
             <div
               className={
-                "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
               }
             />
           </div>
         ) : (
           <form
-            className={"rounded-2xl border border-line bg-panel shadow-card"}
+            className={"rounded-sm border border-line bg-panel shadow-card"}
             onSubmit={submit}
           >
             <FormSection
@@ -377,17 +366,13 @@ function AssetForm({ assetId }: any) {
             <FormFoot error={error} note="All fields are required.">
               <Link
                 href="/assets"
-                className={
-                  "inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
-                }
+                className={buttonVariants({ variant: "secondary" })}
               >
                 Cancel
               </Link>
               <button
                 type="submit"
-                className={
-                  "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-                }
+                className={buttonVariants()}
                 disabled={saving}
               >
                 {saving ? "Saving…" : editing ? "Save changes" : "Create asset"}

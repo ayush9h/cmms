@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { SALES_EMAIL } from "@/lib/constants";
 import {
@@ -28,7 +29,7 @@ export function UpgradeDialog({ open, onOpenChange }: any) {
       <DialogContent>
         <DialogHeader>
           <span
-            className="grid size-10 place-items-center rounded-lg bg-brand-soft text-brand"
+            className="grid size-10 place-items-center rounded-sm bg-brand-soft text-brand"
             aria-hidden="true"
           >
             <Sparkles size={20} strokeWidth={1.8} />
@@ -56,7 +57,7 @@ export function UpgradeDialog({ open, onOpenChange }: any) {
           Write to{" "}
           <a
             href={`mailto:${SALES_EMAIL}`}
-            className="text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
+            className={buttonVariants({ variant: "link", size: "inline" })}
           >
             {SALES_EMAIL}
           </a>{" "}
@@ -67,13 +68,13 @@ export function UpgradeDialog({ open, onOpenChange }: any) {
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="inline-flex items-center min-h-10 px-4 rounded-lg border border-line-strong bg-panel text-ink font-semibold whitespace-nowrap shadow-card hover:border-steel hover:bg-hover"
+            className={buttonVariants({ variant: "secondary" })}
           >
             Maybe later
           </button>
           <a
             href={`mailto:${SALES_EMAIL}?subject=${subject}&body=${body}`}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover min-h-10 px-4"
+            className={buttonVariants()}
           >
             Email us
           </a>

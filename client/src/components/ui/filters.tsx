@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { ListFilter, Search, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Select } from "./select";
@@ -39,11 +41,10 @@ export function FilterMenu({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
-        className={`inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border text-sm font-semibold shadow-card ${
-          open
-            ? "border-chip-line bg-brand-soft text-accent"
-            : "border-line bg-panel text-ink-2 hover:border-line-strong hover:text-ink"
-        }`}
+        className={cn(
+          buttonVariants({ variant: open ? "soft" : "secondary" }),
+          "px-3.5 text-sm",
+        )}
       >
         <ListFilter size={16} strokeWidth={1.7} aria-hidden="true" />
         Filters
@@ -61,7 +62,7 @@ export function FilterMenu({
           id={id}
           role="dialog"
           aria-label="Filters"
-          className={`absolute z-30 top-[calc(100%+8px)] w-[min(560px,calc(100vw-32px))] p-4 rounded-xl border border-line bg-panel shadow-pop animate-pop max-sm:fixed max-sm:inset-x-4 max-sm:top-32 max-sm:w-auto ${align === "right" ? "right-0" : "left-0"}`}
+          className={`absolute z-30 top-[calc(100%+8px)] w-[min(560px,calc(100vw-32px))] p-4 rounded-sm border border-line bg-panel shadow-pop animate-pop max-sm:fixed max-sm:inset-x-4 max-sm:top-32 max-sm:w-auto ${align === "right" ? "right-0" : "left-0"}`}
         >
           <ul className="grid gap-3 sm:gap-2">
             {fields.map((f) => (
@@ -104,7 +105,10 @@ export function FilterMenu({
               type="button"
               onClick={onClear}
               disabled={!active}
-              className="min-h-8 px-2 rounded-md text-sm font-semibold text-accent hover:bg-brand-soft disabled:opacity-40 disabled:hover:bg-transparent"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "px-2 text-sm text-accent hover:bg-brand-soft hover:text-accent",
+              )}
             >
               Clear all
             </button>
@@ -150,7 +154,10 @@ export function FilterBar({
             type="button"
             onClick={() => onQ("")}
             aria-label="Clear search"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 grid place-items-center size-7 rounded-md text-muted hover:bg-ground hover:text-ink"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "absolute right-1.5 top-1/2 size-7 -translate-y-1/2 text-muted hover:bg-ground",
+            )}
           >
             <X size={14} strokeWidth={1.8} aria-hidden="true" />
           </button>

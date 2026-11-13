@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Select } from "./select";
 
@@ -8,9 +10,9 @@ const SIZES = [25, 50, 100].map((n) => ({
   label: String(n),
 }));
 const BTN =
-  "grid place-items-center min-w-[34px] h-[34px] px-2 rounded-lg border text-[13.5px] tabular-nums disabled:opacity-40 disabled:cursor-not-allowed";
-const IDLE =
-  "border-transparent font-medium text-ink-2 enabled:hover:bg-hover enabled:hover:text-ink";
+  "min-w-[34px] h-[34px] px-2 border border-transparent text-[13.5px] font-medium tabular-nums disabled:opacity-40";
+const IDLE = buttonVariants({ variant: "ghost", size: "icon-sm" });
+const CURRENT = buttonVariants({ variant: "soft", size: "icon-sm" });
 
 function pageList(page: number, pages: number) {
   const keep = [...new Set([1, pages, page - 1, page, page + 1])]
@@ -50,7 +52,7 @@ export function Pager({ page, pages, total, size, noun, onPage, onSize }: any) {
         <li>
           <button
             type="button"
-            className={`${BTN} ${IDLE}`}
+            className={cn(IDLE, BTN)}
             onClick={() => onPage(page - 1)}
             disabled={page <= 1}
             aria-label="Previous page"
@@ -74,11 +76,7 @@ export function Pager({ page, pages, total, size, noun, onPage, onSize }: any) {
                 aria-current={n === page ? "page" : undefined}
                 aria-label={`Page ${n}`}
                 onClick={() => onPage(n)}
-                className={`${BTN} ${
-                  n === page
-                    ? "border-chip-line bg-brand-soft font-[650] text-accent"
-                    : IDLE
-                }`}
+                className={cn(n === page ? CURRENT : IDLE, BTN)}
               >
                 {n}
               </button>
@@ -88,7 +86,7 @@ export function Pager({ page, pages, total, size, noun, onPage, onSize }: any) {
         <li>
           <button
             type="button"
-            className={`${BTN} ${IDLE}`}
+            className={cn(IDLE, BTN)}
             onClick={() => onPage(page + 1)}
             disabled={page >= pages}
             aria-label="Next page"

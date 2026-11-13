@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { ChevronDown, Pencil } from "lucide-react";
 import { FileSpreadsheet, Wrench } from "lucide-react";
 import Link from "next/link";
@@ -221,12 +223,7 @@ export function BreakdownLog({ logged }: any) {
             label="Export Excel"
             Icon={FileSpreadsheet}
           />
-          <Link
-            href="/breakdowns/new"
-            className={
-              "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-            }
-          >
+          <Link href="/breakdowns/new" className={buttonVariants()}>
             Log breakdown
           </Link>
         </div>
@@ -237,7 +234,7 @@ export function BreakdownLog({ logged }: any) {
         {loggedId && (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-ok-line bg-ok-bg text-ok-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-ok-line bg-ok-bg text-ok-ink"
             }
             role="status"
           >
@@ -245,9 +242,7 @@ export function BreakdownLog({ logged }: any) {
             {loggedStart}.{" "}
             <Link
               href="/breakdowns/new"
-              className={
-                "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-              }
+              className={buttonVariants({ variant: "link", size: "inline" })}
             >
               Log another
             </Link>
@@ -258,9 +253,7 @@ export function BreakdownLog({ logged }: any) {
             <p>{error.message}</p>
             <button
               type="button"
-              className={
-                "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-              }
+              className={buttonVariants()}
               onClick={() => setNonce((n) => n + 1)}
             >
               Retry
@@ -295,7 +288,7 @@ export function BreakdownLog({ logged }: any) {
             {!data ? (
               <div
                 className={
-                  "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                  "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
                 }
               />
             ) : data.items.length ? (
@@ -306,7 +299,7 @@ export function BreakdownLog({ logged }: any) {
                 >
                   <table
                     className={
-                      "w-full border-collapse text-[13.5px] tabular-nums [&_th]:sticky [&_th]:top-0 [&_th]:z-[1] [&_th]:bg-shell [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:text-[12.5px] [&_th]:font-medium [&_th]:text-muted [&_th]:whitespace-nowrap [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg [&_td]:px-3 [&_td]:py-3 [&_td]:border-b [&_td]:border-line [&_td]:align-top [&_tr:last-child>td]:border-b-0 table-fixed min-w-[1072px] [&_th]:px-2! [&_td]:px-2! [&_th]:overflow-hidden [&_th]:text-ellipsis [&_td]:overflow-hidden"
+                      "w-full border-collapse text-[13.5px] tabular-nums [&_th]:sticky [&_th]:top-0 [&_th]:z-[1] [&_th]:bg-shell [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:text-[12.5px] [&_th]:font-medium [&_th]:text-muted [&_th]:whitespace-nowrap [&_th:first-child]:rounded-l-sm [&_th:last-child]:rounded-r-sm [&_td]:px-3 [&_td]:py-3 [&_td]:border-b [&_td]:border-line [&_td]:align-top [&_tr:last-child>td]:border-b-0 table-fixed min-w-[1072px] [&_th]:px-2! [&_td]:px-2! [&_th]:overflow-hidden [&_th]:text-ellipsis [&_td]:overflow-hidden"
                     }
                   >
                     <colgroup>
@@ -453,7 +446,7 @@ export function BreakdownLog({ logged }: any) {
                                 <Link
                                   href={`/breakdowns/new?edit=${r.entry_id}`}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="inline-grid place-items-center size-7 -mt-[3px] rounded-md text-muted hover:bg-brand-soft hover:text-accent"
+                                  className="inline-grid place-items-center size-7 -mt-[3px] rounded-sm text-muted hover:bg-brand-soft hover:text-accent"
                                   aria-label={`Edit breakdown on ${r.name}, ${fmt.day(r.date)}`}
                                   title="Edit"
                                 >
@@ -465,7 +458,13 @@ export function BreakdownLog({ logged }: any) {
                                 </Link>
                                 <button
                                   type="button"
-                                  className="inline-grid place-items-center size-7 -mt-[3px] rounded-md text-muted hover:bg-hover hover:text-ink"
+                                  className={cn(
+                                    buttonVariants({
+                                      variant: "ghost",
+                                      size: "icon-sm",
+                                    }),
+                                    "-mt-[3px] size-7 text-muted",
+                                  )}
                                   aria-expanded={isOpen}
                                   aria-controls={`d-${i}`}
                                   aria-label={`${isOpen ? "Hide" : "Show"} details for ${r.name} on ${fmt.day(r.date)}`}
@@ -489,7 +488,7 @@ export function BreakdownLog({ logged }: any) {
                                   colSpan={7 + PHASES.length}
                                   className="!p-0 !pb-4"
                                 >
-                                  <dl className="grid grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_200px_200px] gap-5 m-0 px-4 py-3.5 rounded-md border border-line bg-panel [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-muted [&_dd]:mt-1 [&_dd]:leading-normal [&_dd]:whitespace-pre-wrap [&_dd]:wrap-anywhere">
+                                  <dl className="grid grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_200px_200px] gap-5 m-0 px-4 py-3.5 rounded-sm border border-line bg-panel [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-muted [&_dd]:mt-1 [&_dd]:leading-normal [&_dd]:whitespace-pre-wrap [&_dd]:wrap-anywhere">
                                     <div>
                                       <dt>Problem description</dt>
                                       <dd>{r.description || "Not recorded"}</dd>
@@ -550,9 +549,10 @@ export function BreakdownLog({ logged }: any) {
                 <p>No breakdowns match these filters.</p>
                 <button
                   type="button"
-                  className={
-                    "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                  }
+                  className={buttonVariants({
+                    variant: "link",
+                    size: "inline",
+                  })}
                   onClick={reset}
                 >
                   Clear filters

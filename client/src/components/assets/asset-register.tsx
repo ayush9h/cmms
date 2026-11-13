@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useReducer, useRef } from "react";
 import { useAuth } from "@/auth/provider";
@@ -96,12 +97,7 @@ export function AssetRegister({ created, updated }: any) {
         }
       >
         {isManager && (
-          <Link
-            href="/assets/new"
-            className={
-              "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-            }
-          >
+          <Link href="/assets/new" className={buttonVariants()}>
             New asset
           </Link>
         )}
@@ -112,7 +108,7 @@ export function AssetRegister({ created, updated }: any) {
         {flagged && (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-ok-line bg-ok-bg text-ok-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-ok-line bg-ok-bg text-ok-ink"
             }
             role="status"
           >
@@ -127,9 +123,7 @@ export function AssetRegister({ created, updated }: any) {
             <p>{error.message}</p>
             <button
               type="button"
-              className={
-                "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-              }
+              className={buttonVariants()}
               onClick={() => dispatch({ type: "retry" })}
             >
               Retry
@@ -166,7 +160,7 @@ export function AssetRegister({ created, updated }: any) {
             {!data ? (
               <div
                 className={
-                  "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                  "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
                 }
               />
             ) : data.items.length ? (
@@ -177,7 +171,7 @@ export function AssetRegister({ created, updated }: any) {
                 >
                   <table
                     className={
-                      "w-full border-collapse text-[13.5px] tabular-nums [&_th]:sticky [&_th]:top-0 [&_th]:z-[1] [&_th]:bg-shell [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:text-[12.5px] [&_th]:font-medium [&_th]:text-muted [&_th]:whitespace-nowrap [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg [&_td]:px-3 [&_td]:py-3 [&_td]:border-b [&_td]:border-line [&_td]:align-top [&_tr:last-child>td]:border-b-0"
+                      "w-full border-collapse text-[13.5px] tabular-nums [&_th]:sticky [&_th]:top-0 [&_th]:z-[1] [&_th]:bg-shell [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:text-[12.5px] [&_th]:font-medium [&_th]:text-muted [&_th]:whitespace-nowrap [&_th:first-child]:rounded-l-sm [&_th:last-child]:rounded-r-sm [&_td]:px-3 [&_td]:py-3 [&_td]:border-b [&_td]:border-line [&_td]:align-top [&_tr:last-child>td]:border-b-0"
                     }
                   >
                     <thead>
@@ -255,9 +249,10 @@ export function AssetRegister({ created, updated }: any) {
                             <td className="whitespace-nowrap">
                               <Link
                                 href={`/assets/${encodeURIComponent(a.id)}/edit`}
-                                className={
-                                  "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                                }
+                                className={buttonVariants({
+                                  variant: "link",
+                                  size: "inline",
+                                })}
                                 aria-label={`Edit ${a.id}`}
                               >
                                 Edit
@@ -286,9 +281,10 @@ export function AssetRegister({ created, updated }: any) {
                 <p>No assets match these filters.</p>
                 <button
                   type="button"
-                  className={
-                    "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                  }
+                  className={buttonVariants({
+                    variant: "link",
+                    size: "inline",
+                  })}
                   onClick={() => dispatch({ type: "reset" })}
                 >
                   Clear filters

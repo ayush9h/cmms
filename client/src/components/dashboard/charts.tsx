@@ -28,7 +28,7 @@ const hrs = (minutes) => `${fmt.n(Math.round(minutes / 6) / 10)} h`;
 
 export function Tip({ active, payload, render }: any) {
   return active && payload?.length ? (
-    <div className="grid gap-0.5 px-2.5 py-2 rounded-[5px] bg-tip-bg text-tip-ink text-[12.5px] leading-[1.35] tabular-nums shadow-pop [&_b]:font-semibold">
+    <div className="grid gap-0.5 px-2.5 py-2 rounded-sm bg-tip-bg text-tip-ink text-[12.5px] leading-[1.35] tabular-nums shadow-pop [&_b]:font-semibold">
       {render(payload[0].payload)}
     </div>
   ) : null;

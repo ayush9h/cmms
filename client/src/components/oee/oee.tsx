@@ -1,5 +1,6 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,7 +15,7 @@ const OeeChart = dynamic(() => import("./oee-chart").then((m) => m.OeeChart), {
   loading: () => (
     <div
       className={
-        "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+        "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
       }
     />
   ),
@@ -71,7 +72,7 @@ function Metric({ metric, kpi, index }: any) {
   return (
     <div
       className={
-        "flex min-w-0 flex-col rounded-2xl border border-line bg-shell p-1.5 animate-rise"
+        "flex min-w-0 flex-col rounded-sm border border-line bg-shell p-1.5 animate-rise"
       }
       style={{ animationDelay: `${index * 40}ms` }}
     >
@@ -82,7 +83,7 @@ function Metric({ metric, kpi, index }: any) {
         </p>
       </div>
       {/* flex-1 so a note that wraps to two lines cannot make one card taller */}
-      <div className="grid min-w-0 flex-1 content-start gap-3 rounded-xl border border-line bg-panel shadow-card p-4">
+      <div className="grid min-w-0 flex-1 content-start gap-3 rounded-sm border border-line bg-panel shadow-card p-4">
         <p className="text-[clamp(24px,2.2vw,30px)] font-semibold leading-[1.1] tracking-[-0.03em] tabular-nums">
           {pct(kpi[metric.key])}
         </p>
@@ -178,12 +179,7 @@ export function Oee({ logged }: any) {
             onClear={() => setFilters(BLANK)}
             align="right"
           />
-          <Link
-            href="/oee/ppc"
-            className={
-              "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-            }
-          >
+          <Link href="/oee/ppc" className={buttonVariants()}>
             PPC entry
           </Link>
         </div>
@@ -196,7 +192,7 @@ export function Oee({ logged }: any) {
         {loggedId && (
           <p
             className={
-              "mb-4 px-3.5 py-2.5 rounded-md border border-ok-line bg-ok-bg text-ok-ink"
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-ok-line bg-ok-bg text-ok-ink"
             }
             role="status"
           >
@@ -204,9 +200,7 @@ export function Oee({ logged }: any) {
             .{" "}
             <Link
               href="/oee/ppc"
-              className={
-                "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-              }
+              className={buttonVariants({ variant: "link", size: "inline" })}
             >
               Add another
             </Link>
@@ -215,13 +209,7 @@ export function Oee({ logged }: any) {
         {error && !data ? (
           <ErrorState title="Can’t load OEE">
             <p>{error.message}</p>
-            <button
-              type="button"
-              className={
-                "inline-flex items-center justify-center gap-2 rounded-md bg-btn text-on-btn font-semibold whitespace-nowrap hover:bg-btn-hover disabled:opacity-60 disabled:cursor-progress disabled:hover:bg-btn min-h-10 px-4"
-              }
-              onClick={retry}
-            >
+            <button type="button" className={buttonVariants()} onClick={retry}>
               Retry
             </button>
           </ErrorState>
@@ -232,25 +220,23 @@ export function Oee({ logged }: any) {
                 <div
                   key={m.key}
                   className={
-                    "min-w-0 rounded-2xl border border-line bg-shell p-1.5"
+                    "min-w-0 rounded-sm border border-line bg-shell p-1.5"
                   }
                 >
                   <div
                     className={
-                      "h-[132px] rounded-xl bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                      "h-[132px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
                     }
                   />
                 </div>
               ))}
             </div>
             <div
-              className={
-                "min-w-0 rounded-2xl border border-line bg-shell p-1.5"
-              }
+              className={"min-w-0 rounded-sm border border-line bg-shell p-1.5"}
             >
               <div
                 className={
-                  "h-[220px] rounded-md bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
+                  "h-[220px] rounded-sm bg-[linear-gradient(90deg,var(--ground),var(--panel-2),var(--ground))] bg-[length:200%_100%] animate-shimmer"
                 }
               />
             </div>
@@ -260,16 +246,17 @@ export function Oee({ logged }: any) {
             {error && (
               <p
                 className={
-                  "mb-4 px-3.5 py-2.5 rounded-md border border-danger-line bg-danger-bg text-danger-ink"
+                  "mb-4 px-3.5 py-2.5 rounded-sm border border-danger-line bg-danger-bg text-danger-ink"
                 }
                 role="alert"
               >
                 Couldn’t refresh: {error.message}. Showing the last loaded view.{" "}
                 <button
                   type="button"
-                  className={
-                    "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                  }
+                  className={buttonVariants({
+                    variant: "link",
+                    size: "inline",
+                  })}
                   onClick={retry}
                 >
                   Retry
@@ -279,7 +266,7 @@ export function Oee({ logged }: any) {
             {!data.kpi.entries && (
               <p
                 className={
-                  "min-w-0 rounded-xl border border-line bg-panel shadow-card p-4 sm:p-5 mb-3 text-[13.5px] text-ink-2"
+                  "min-w-0 rounded-sm border border-line bg-panel shadow-card p-4 sm:p-5 mb-3 text-[13.5px] text-ink-2"
                 }
               >
                 No production or breakdowns are logged against a PPC entry for
@@ -287,9 +274,10 @@ export function Oee({ logged }: any) {
                 production or a breakdown logged, on a machine with a{" "}
                 <Link
                   href="/oee/ppc"
-                  className={
-                    "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                  }
+                  className={buttonVariants({
+                    variant: "link",
+                    size: "inline",
+                  })}
                 >
                   PPC entry
                 </Link>{" "}
@@ -313,9 +301,10 @@ export function Oee({ logged }: any) {
                     </span>
                     <button
                       type="button"
-                      className={
-                        "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                      }
+                      className={buttonVariants({
+                        variant: "link",
+                        size: "inline",
+                      })}
                       onClick={() => setPicked("all")}
                     >
                       Show the total
@@ -330,9 +319,10 @@ export function Oee({ logged }: any) {
                     </span>
                     <button
                       type="button"
-                      className={
-                        "text-accent font-semibold underline underline-offset-3 decoration-1 hover:decoration-2"
-                      }
+                      className={buttonVariants({
+                        variant: "link",
+                        size: "inline",
+                      })}
                       onClick={() => setPicked(null)}
                     >
                       Show the latest {view.label.toLowerCase()}
@@ -370,7 +360,7 @@ export function Oee({ logged }: any) {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div
-                    className="inline-grid grid-cols-3 gap-1 p-1 rounded-lg border border-line-strong bg-panel-2"
+                    className="inline-grid grid-cols-3 gap-1 p-1 rounded-sm border border-line-strong bg-panel-2"
                     role="group"
                     aria-label="View OEE by"
                   >
@@ -383,7 +373,7 @@ export function Oee({ logged }: any) {
                           setView(v);
                           setPicked(null);
                         }}
-                        className={`h-8 px-4 rounded-md text-sm font-semibold ${
+                        className={`h-8 px-4 rounded-sm text-sm font-semibold ${
                           view.key === v.key
                             ? "bg-panel text-ink shadow-card"
                             : "text-muted hover:text-ink"
