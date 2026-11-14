@@ -54,7 +54,15 @@ export function LoginForm() {
           fill
           sizes="60vw"
           priority
-          className="object-cover"
+          className="object-cover dark:hidden"
+        />
+
+        <Image
+          src="/login-bg-dark.jpg"
+          alt=""
+          fill
+          sizes="60vw"
+          className="hidden object-cover dark:block"
         />
 
         <div className="relative px-10 pt-10">
@@ -68,12 +76,20 @@ export function LoginForm() {
         <div className="relative grid flex-1 place-items-center px-10 pb-14">
           <figure className="w-full max-w-[1100px]">
             <Image
-              src="/dashboard-full.webp"
+              src="/dashboard-light.webp"
               alt=""
               width={1917}
-              height={1057}
+              height={1052}
               priority
-              className="h-auto w-full rounded-sm border border-white/30 shadow-[0_18px_60px_-12px_rgb(0_0_0/0.45)]"
+              className="h-auto w-full rounded-sm border border-white/30 shadow-[0_18px_60px_-12px_rgb(0_0_0/0.45)] dark:hidden"
+            />
+
+            <Image
+              src="/dashboard-dark.webp"
+              alt=""
+              width={1917}
+              height={1053}
+              className="hidden h-auto w-full rounded-sm border border-white/20 shadow-[0_18px_60px_-12px_rgb(0_0_0/0.6)] dark:block"
             />
 
             <figcaption className="mt-3 text-center text-xs text-white/80">

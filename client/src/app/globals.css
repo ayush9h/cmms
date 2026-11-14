@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* `dark:` follows the same rules as the tokens below: system preference
+   unless data-theme pins it. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) & {
+      @slot;
+    }
+  }
+  :root[data-theme="dark"] & {
+    @slot;
+  }
+}
+
 :root {
   --brand: #0091d0;
   --brand-soft: #e3f3fb;
