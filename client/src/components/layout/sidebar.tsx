@@ -457,7 +457,7 @@ export function Sidebar() {
         tabIndex={-1}
         inert={!wide && !drawer}
         style={{ "--sidebar-w": `${width}px` } as any}
-        className={`sticky top-0 z-20 flex flex-col items-stretch h-screen ease-snap focus:outline-none max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:w-[280px] max-md:max-w-[85vw] max-md:border-r max-md:border-line max-md:bg-panel max-md:shadow-pop max-md:overflow-y-auto max-md:transition-transform max-md:duration-200 ${drawer ? "" : "max-md:-translate-x-full"} ${collapsed ? "md:w-[72px] md:transition-[width] md:duration-200" : "md:w-[var(--sidebar-w)]"}`}
+        className={`sticky top-0 z-20 flex flex-col items-stretch h-screen ease-snap focus:outline-none max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:h-dvh max-md:w-[280px] max-md:max-w-[85vw] max-md:border-r max-md:border-line max-md:bg-panel max-md:shadow-pop max-md:overflow-y-auto max-md:transition-transform max-md:duration-200 ${drawer ? "" : "max-md:-translate-x-full"} ${collapsed ? "md:w-[72px] md:transition-[width] md:duration-200" : "md:w-[var(--sidebar-w)]"}`}
       >
         {/* drag the edge to resize; only meaningful on the wide layout */}
         {!collapsed && (
