@@ -7,13 +7,14 @@ import {
   Factory,
   Gauge,
   LayoutDashboard,
+  Menu,
   PanelLeftClose,
   Lock,
   PanelLeftOpen,
-  ScrollText,
   ClipboardClock,
   MonitorActivity,
   Wrench,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +35,7 @@ const NAV = [
     children: [
       {
         // /oee renders the OEE page and / renders the breakdown dashboard;
-        // the hrefs were swapped, so each label opened the other's page
+        // the hrefs were swapped, so each label opened the other page
         href: "/oee",
         label: "Manufacturing Performance",
         hint: "OEE: availability, performance and quality",
@@ -89,26 +90,29 @@ const NAV = [
 ];
 const DESKTOP = "(min-width: 861px)";
 const ITEM =
-  "relative flex items-center justify-center gap-2.5 w-10 min-w-0 min-h-[38px] rounded-sm border text-sm transition-colors md:w-auto";
+  "relative flex items-center justify-center gap-2.5 min-w-0 min-h-[38px] rounded-sm border text-sm transition-colors";
 const ON =
   "border-line bg-nav-active-bg text-nav-active-ink font-semibold shadow-card";
 const OFF =
   "border-transparent font-medium text-ink-2 hover:bg-line hover:text-ink";
 
-// dot on the icon rail / mobile, padlock when the sidebar is expanded
+// dot on the collapsed icon rail, padlock wherever the label is visible
 function LockMark({ collapsed }: any) {
   return (
     <>
-      <span
-        aria-hidden="true"
-        className={`absolute right-1 top-1 size-1.5 rounded-full bg-accent ${!collapsed ? "md:hidden" : ""}`}
-      />
-      <Lock
-        size={13}
-        strokeWidth={2}
-        aria-hidden="true"
-        className={`hidden ml-auto shrink-0 text-muted ${!collapsed ? "md:block" : ""}`}
-      />
+      {collapsed ? (
+        <span
+          aria-hidden="true"
+          className="absolute right-1 top-1 size-1.5 rounded-full bg-accent"
+        />
+      ) : (
+        <Lock
+          size={13}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="ml-auto shrink-0 text-muted"
+        />
+      )}
       <span className="sr-only">(Premium)</span>
     </>
   );
@@ -152,22 +156,19 @@ function NavGroup({
 
   const inline = !locked && !collapsed && open;
   const childLocked = (c: any) => Boolean(c.premium) && !isPremium;
+  // the flyout belongs to the collapsed rail; everywhere else the group opens inline
   const click = () =>
-    locked
-      ? onLocked()
-      : !collapsed && matchMedia(DESKTOP).matches
-        ? setOpen((o) => !o)
-        : setFly((f) => !f);
+    locked ? onLocked() : collapsed ? setFly((f) => !f) : setOpen((o) => !o);
 
   return (
     <li className="relative min-w-0" ref={root}>
       <button
         type="button"
         onClick={click}
-        aria-expanded={locked ? undefined : collapsed ? fly : inline || fly}
+        aria-expanded={locked ? undefined : collapsed ? fly : inline}
         aria-controls={locked ? undefined : id}
         title={collapsed ? group.label : undefined}
-        className={`${ITEM} md:w-full ${collapsed ? "md:px-0" : "md:justify-start md:px-2.5"} ${inGroup ? ON : OFF}`}
+        className={`${ITEM} w-full ${collapsed ? "px-0" : "justify-start px-2.5"} ${inGroup ? ON : OFF}`}
       >
         <group.Icon
           size={18}
@@ -183,7 +184,7 @@ function NavGroup({
             size={15}
             strokeWidth={1.8}
             aria-hidden="true"
-            className={`hidden ml-auto text-muted transition-[rotate] duration-200 ease-snap ${!collapsed ? "md:block" : ""} ${inline ? "rotate-180" : ""}`}
+            className={`${collapsed ? "hidden" : "block"} ml-auto text-muted transition-[rotate] duration-200 ease-snap ${inline ? "rotate-180" : ""}`}
           />
         )}
       </button>
@@ -191,7 +192,7 @@ function NavGroup({
       {inline && (
         <ul
           id={id}
-          className="hidden md:grid min-w-0 gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong"
+          className="grid min-w-0 gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong"
         >
           {group.children.map((c) => {
             const lock = childLocked(c);
@@ -255,9 +256,7 @@ function NavGroup({
           id={id}
           role="menu"
           aria-label={group.label}
-          className={
-            "absolute z-40 top-[calc(100%+10px)] left-1/2 -translate-x-1/2 w-72 p-1.5 rounded-sm border border-line bg-panel shadow-pop animate-pop md:top-0 md:left-[calc(100%+14px)] md:translate-x-0"
-          }
+          className="absolute z-40 top-0 left-[calc(100%+14px)] w-72 p-1.5 rounded-sm border border-line bg-panel shadow-pop animate-pop"
         >
           <p className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
             {group.label}
@@ -329,20 +328,52 @@ const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
 export function Sidebar() {
   const path = usePathname();
   const { user, logout, isPremium } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [railed, setRailed] = useState(false);
+  const [wide, setWide] = useState(true);
+  const [drawer, setDrawer] = useState(false);
   const [upgrade, setUpgrade] = useState(false);
   const [width, setWidth] = useState(DEF_W);
   const aside = useRef<any>(null);
+  const burger = useRef<any>(null);
+  // the icon rail is a wide-layout mode; the mobile drawer is always expanded
+  const collapsed = wide && railed;
   // Premium options stay visible for free users, marked, and open the dialog
   const lockedFor = (n: any) => Boolean(n.premium) && !isPremium;
 
   useEffect(() => {
     try {
-      setCollapsed(localStorage.getItem(KEY) === "1");
+      setRailed(localStorage.getItem(KEY) === "1");
       const saved = Number(localStorage.getItem(WIDTH_KEY));
       if (saved) setWidth(clampW(saved));
     } catch {}
   }, []);
+
+  useEffect(() => {
+    const mq = matchMedia(DESKTOP);
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // navigating, going wide or Escape all close the drawer
+  useEffect(() => setDrawer(false), [path]);
+  useEffect(() => {
+    if (wide) setDrawer(false);
+  }, [wide]);
+  useEffect(() => {
+    if (!drawer) return;
+    aside.current?.focus();
+    const esc = (e) =>
+      e.key === "Escape" && !e.defaultPrevented && setDrawer(false);
+    document.addEventListener("keydown", esc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", esc);
+      document.body.style.overflow = "";
+      burger.current?.focus();
+    };
+  }, [drawer]);
 
   const saveWidth = (w: number) => {
     setWidth(w);
@@ -376,7 +407,7 @@ export function Sidebar() {
 
   const toggle = () => {
     const next = !collapsed;
-    setCollapsed(next);
+    setRailed(next);
     try {
       localStorage.setItem(KEY, next ? "1" : "0");
     } catch {}
@@ -384,168 +415,212 @@ export function Sidebar() {
   const tip = (text) => (collapsed ? text : undefined);
   const active = (href) =>
     href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
-  const label = `sr-only ${!collapsed ? "md:not-sr-only md:block md:min-w-0 md:flex-1 md:truncate md:whitespace-nowrap md:text-left" : ""}`;
+  const label = collapsed
+    ? "sr-only"
+    : "min-w-0 flex-1 truncate whitespace-nowrap text-left";
   const Toggle = collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
-    <aside
-      ref={aside}
-      style={{ "--sidebar-w": `${width}px` } as any}
-      className={`sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 py-2 border-b border-line bg-panel md:bg-transparent md:flex-col md:items-stretch md:gap-0 md:h-screen md:p-0 md:border-b-0 md:ease-snap ${collapsed ? "md:w-[72px] md:transition-[width] md:duration-200" : "md:w-[var(--sidebar-w)]"}`}
-    >
-      {/* drag the edge to resize; only meaningful on the wide layout */}
-      {!collapsed && (
-        <div
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize sidebar"
-          aria-valuenow={width}
-          aria-valuemin={MIN_W}
-          aria-valuemax={MAX_W}
-          tabIndex={0}
-          onPointerDown={startDrag}
-          onPointerMove={(e) =>
-            e.currentTarget.hasPointerCapture?.(e.pointerId) && onDragMove(e)
-          }
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onDoubleClick={() => saveWidth(DEF_W)}
-          onKeyDown={nudge}
-          title="Drag to resize — double-click to reset"
-          className="hidden md:block absolute right-0 top-0 z-30 h-full w-1.5 cursor-col-resize touch-none after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-transparent hover:after:bg-accent focus-visible:after:bg-accent focus-visible:outline-none"
-        />
-      )}
-      <div
-        className={`contents md:flex md:items-center md:gap-2 md:h-[72px] ${
-          collapsed ? "md:justify-center" : "md:justify-between md:pl-5 md:pr-3"
-        }`}
-      >
+    <>
+      <header className="sticky top-0 z-20 flex items-center gap-1.5 h-14 px-4 border-b border-line bg-panel md:hidden">
+        <button
+          type="button"
+          ref={burger}
+          onClick={() => setDrawer(true)}
+          aria-label="Open navigation"
+          aria-expanded={drawer}
+          aria-controls="nav-drawer"
+          className="grid place-items-center size-9 -ml-1.5 shrink-0 rounded-sm text-ink-2 hover:bg-line hover:text-ink"
+        >
+          <Menu size={22} strokeWidth={1.8} aria-hidden="true" />
+        </button>
         <Link
           href="/"
-          className={`order-[-2] flex pr-1.5 md:order-none md:pr-0 ${collapsed ? "md:hidden" : ""}`}
+          className="flex"
           aria-label={`${APP_NAME} maintenance dashboard`}
         >
           <Logo className="text-[20px]" compact />
         </Link>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="group hidden md:grid place-items-center size-9 shrink-0 rounded-sm text-muted hover:bg-line hover:text-ink"
-        >
-          {collapsed && (
-            <svg
-              viewBox="0 0 32 32"
-              aria-hidden="true"
-              className="[grid-area:1/1] size-[30px] transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0"
-            >
-              <circle
-                cx="16"
-                cy="16"
-                r="13.5"
-                className="fill-panel stroke-brand-grey stroke-[5]"
-              />
-              <path d="M16 6.5l8.2 14.2H7.8z" className="fill-brand" />
-              <path d="M13 15.9h6l-3 4.8z" className="fill-panel" />
-            </svg>
-          )}
-          <Toggle
-            size={20}
-            strokeWidth={1.8}
-            aria-hidden="true"
-            className={`[grid-area:1/1] transition-opacity ${collapsed ? "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100" : ""}`}
-          />
-        </button>
-      </div>
+      </header>
 
-      <div className="contents md:flex md:flex-col md:gap-5 md:px-3 md:pt-2 md:pb-4">
-        <nav aria-labelledby="nav-h" className="grid gap-1.5">
-          <p
-            id="nav-h"
-            className={`hidden px-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-muted ${!collapsed ? "md:block" : ""}`}
+      {drawer && (
+        <div
+          aria-hidden="true"
+          onClick={() => setDrawer(false)}
+          className="fixed inset-0 z-30 bg-black/45 backdrop-blur-[2px] animate-pop md:hidden"
+        />
+      )}
+
+      <aside
+        ref={aside}
+        id="nav-drawer"
+        tabIndex={-1}
+        inert={!wide && !drawer}
+        style={{ "--sidebar-w": `${width}px` } as any}
+        className={`sticky top-0 z-20 flex flex-col items-stretch h-screen ease-snap focus:outline-none max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:w-[280px] max-md:max-w-[85vw] max-md:border-r max-md:border-line max-md:bg-panel max-md:shadow-pop max-md:overflow-y-auto max-md:transition-transform max-md:duration-200 ${drawer ? "" : "max-md:-translate-x-full"} ${collapsed ? "md:w-[72px] md:transition-[width] md:duration-200" : "md:w-[var(--sidebar-w)]"}`}
+      >
+        {/* drag the edge to resize; only meaningful on the wide layout */}
+        {!collapsed && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            aria-valuenow={width}
+            aria-valuemin={MIN_W}
+            aria-valuemax={MAX_W}
+            tabIndex={0}
+            onPointerDown={startDrag}
+            onPointerMove={(e) =>
+              e.currentTarget.hasPointerCapture?.(e.pointerId) && onDragMove(e)
+            }
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            onDoubleClick={() => saveWidth(DEF_W)}
+            onKeyDown={nudge}
+            title="Drag to resize — double-click to reset"
+            className="hidden md:block absolute right-0 top-0 z-30 h-full w-1.5 cursor-col-resize touch-none after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-transparent hover:after:bg-accent focus-visible:after:bg-accent focus-visible:outline-none"
+          />
+        )}
+        <div
+          className={`flex items-center gap-2 h-[72px] shrink-0 ${
+            collapsed ? "justify-center" : "justify-between pl-5 pr-3"
+          }`}
+        >
+          <Link
+            href="/"
+            className={`flex ${collapsed ? "hidden" : ""}`}
+            aria-label={`${APP_NAME} maintenance dashboard`}
           >
-            Menu
-          </p>
-          <ul className="grid grid-flow-col md:grid-flow-row md:grid-cols-[minmax(0,1fr)] gap-0.5">
-            {NAV.map((n) => {
-              const locked = lockedFor(n);
-              const heading = n.heading && (
-                <li
-                  key={`${n.label}-heading`}
-                  className={`hidden px-2.5 pt-3 pb-1 text-[11px] font-medium uppercase tracking-[0.06em] text-muted ${!collapsed ? "md:block" : ""}`}
-                >
-                  {n.heading}
-                </li>
-              );
-              if (n.children)
-                return (
-                  <Fragment key={n.label}>
-                    {heading}
-                    <NavGroup
-                      group={n}
-                      path={path}
-                      collapsed={collapsed}
-                      label={label}
-                      locked={locked}
-                      onLocked={() => setUpgrade(true)}
-                      isPremium={isPremium}
+            <Logo className="text-[20px]" compact />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDrawer(false)}
+            aria-label="Close navigation"
+            className="grid md:hidden place-items-center size-9 shrink-0 rounded-sm text-muted hover:bg-line hover:text-ink"
+          >
+            <X size={20} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="group hidden md:grid place-items-center size-9 shrink-0 rounded-sm text-muted hover:bg-line hover:text-ink"
+          >
+            {collapsed && (
+              <svg
+                viewBox="0 0 32 32"
+                aria-hidden="true"
+                className="[grid-area:1/1] size-[30px] transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="13.5"
+                  className="fill-panel stroke-brand-grey stroke-[5]"
+                />
+                <path d="M16 6.5l8.2 14.2H7.8z" className="fill-brand" />
+                <path d="M13 15.9h6l-3 4.8z" className="fill-panel" />
+              </svg>
+            )}
+            <Toggle
+              size={20}
+              strokeWidth={1.8}
+              aria-hidden="true"
+              className={`[grid-area:1/1] transition-opacity ${collapsed ? "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100" : ""}`}
+            />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5 px-3 pt-2 pb-4">
+          <nav aria-labelledby="nav-h" className="grid gap-1.5">
+            <p
+              id="nav-h"
+              className={`${collapsed ? "hidden" : "block"} px-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-muted`}
+            >
+              Menu
+            </p>
+            <ul className="grid grid-cols-[minmax(0,1fr)] gap-0.5">
+              {NAV.map((n) => {
+                const locked = lockedFor(n);
+                const heading = n.heading && (
+                  <li
+                    key={`${n.label}-heading`}
+                    className={`${collapsed ? "hidden" : "block"} px-2.5 pt-3 pb-1 text-[11px] font-medium uppercase tracking-[0.06em] text-muted`}
+                  >
+                    {n.heading}
+                  </li>
+                );
+                if (n.children)
+                  return (
+                    <Fragment key={n.label}>
+                      {heading}
+                      <NavGroup
+                        group={n}
+                        path={path}
+                        collapsed={collapsed}
+                        label={label}
+                        locked={locked}
+                        onLocked={() => setUpgrade(true)}
+                        isPremium={isPremium}
+                      />
+                    </Fragment>
+                  );
+                const { href, label: name, Icon } = n;
+                const current = active(href);
+                const inner = (
+                  <>
+                    <Icon
+                      size={18}
+                      strokeWidth={1.8}
+                      aria-hidden="true"
+                      className="shrink-0"
                     />
+                    <span className={label}>{name}</span>
+                    {locked && <LockMark collapsed={collapsed} />}
+                  </>
+                );
+                const cls = `${ITEM} w-full ${collapsed ? "px-0" : "justify-start px-2.5"} ${current && !locked ? ON : OFF}`;
+                return (
+                  <Fragment key={href}>
+                    {heading}
+                    <li>
+                      {locked ? (
+                        <button
+                          type="button"
+                          onClick={() => setUpgrade(true)}
+                          title={tip(name)}
+                          className={cls}
+                        >
+                          {inner}
+                        </button>
+                      ) : (
+                        <Link
+                          href={href}
+                          title={tip(name)}
+                          aria-current={current ? "page" : undefined}
+                          className={cls}
+                        >
+                          {inner}
+                        </Link>
+                      )}
+                    </li>
                   </Fragment>
                 );
-              const { href, label: name, Icon } = n;
-              const current = active(href);
-              const inner = (
-                <>
-                  <Icon
-                    size={18}
-                    strokeWidth={1.8}
-                    aria-hidden="true"
-                    className="shrink-0"
-                  />
-                  <span className={label}>{name}</span>
-                  {locked && <LockMark collapsed={collapsed} />}
-                </>
-              );
-              const cls = `${ITEM} ${collapsed ? "md:px-0" : "md:justify-start md:px-2.5"} ${current && !locked ? ON : OFF}`;
-              return (
-                <Fragment key={href}>
-                  {heading}
-                  <li>
-                    {locked ? (
-                      <button
-                        type="button"
-                        onClick={() => setUpgrade(true)}
-                        title={tip(name)}
-                        className={`${cls} md:w-full`}
-                      >
-                        {inner}
-                      </button>
-                    ) : (
-                      <Link
-                        href={href}
-                        title={tip(name)}
-                        aria-current={current ? "page" : undefined}
-                        className={cls}
-                      >
-                        {inner}
-                      </Link>
-                    )}
-                  </li>
-                </Fragment>
-              );
-            })}
-          </ul>
-        </nav>
-      </div>
+              })}
+            </ul>
+          </nav>
+        </div>
 
-      <div
-        className={`order-2 grid gap-2.5 md:order-none md:mt-auto ${collapsed ? "md:justify-items-center md:py-3" : "md:p-3"}`}
-      >
-        <UserMenu user={user} logout={logout} collapsed={collapsed} />
-      </div>
-      <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
-    </aside>
+        <div
+          className={`grid gap-2.5 mt-auto ${collapsed ? "justify-items-center py-3" : "p-3"}`}
+        >
+          <UserMenu user={user} logout={logout} collapsed={collapsed} />
+        </div>
+        <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
+      </aside>
+    </>
   );
 }

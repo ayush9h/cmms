@@ -35,17 +35,16 @@ export function UserMenu({ user, logout, collapsed }: any) {
   return (
     <div className="relative" ref={root}>
       {open && (
-        // Mobile puts the sidebar in a top bar, so the menu drops down there
-        // and rises above the account row on the wide layout.
+        // The account row sits at the foot of the sidebar column, so the menu
+        // rises above it.
         <div
           role="dialog"
           aria-label="Account"
           className={cn(
-            "absolute right-0 top-full z-30 mt-2 grid w-max min-w-56 max-w-[min(280px,80vw)] gap-1 rounded-sm border border-line bg-panel p-1.5 shadow-pop animate-pop",
-            "md:bottom-full md:left-0 md:right-auto md:top-auto md:mb-2 md:mt-0",
+            "absolute bottom-full left-0 z-30 mb-2 grid w-max min-w-56 max-w-[min(280px,80vw)] gap-1 rounded-sm border border-line bg-panel p-1.5 shadow-pop animate-pop",
             // expanded rail: match the account row; collapsed rail is too
             // narrow, so the menu keeps its own width there
-            !collapsed && "md:w-full md:min-w-[224px] md:max-w-none",
+            !collapsed && "w-full min-w-[224px] max-w-none",
           )}
         >
           <div className="border-b border-line px-2 pb-2 pt-1">
@@ -89,8 +88,8 @@ export function UserMenu({ user, logout, collapsed }: any) {
         className={cn(
           "flex w-full items-center gap-2.5 min-w-0 rounded-sm text-left hover:bg-hover",
           collapsed
-            ? "md:justify-center md:p-1.5"
-            : "md:border md:border-line md:bg-panel md:p-2 md:shadow-card md:hover:border-line-strong",
+            ? "justify-center p-1.5"
+            : "border border-line bg-panel p-2 shadow-card hover:border-line-strong",
         )}
       >
         <span
@@ -102,7 +101,7 @@ export function UserMenu({ user, logout, collapsed }: any) {
 
         {!collapsed && (
           <>
-            <span className="hidden min-w-0 flex-1 md:grid">
+            <span className="grid min-w-0 flex-1">
               <span className="truncate text-[13px] font-semibold">
                 {user.name}
               </span>
@@ -115,7 +114,7 @@ export function UserMenu({ user, logout, collapsed }: any) {
               size={15}
               strokeWidth={1.8}
               aria-hidden="true"
-              className="hidden shrink-0 text-muted md:block"
+              className="shrink-0 text-muted"
             />
           </>
         )}
