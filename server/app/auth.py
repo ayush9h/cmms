@@ -11,6 +11,21 @@ from app.config import settings
 
 ROLES = ("employee", "manager")
 TIERS = ("free", "premium")
+# What a free account may record. Premium is unlimited. The keys are the nouns
+# shown to the user, so there is no second table of labels to keep in step.
+FREE_LIMITS = {"assets": 5, "breakdowns": 30, "rejections": 30, "PPC entries": 30}
+
+
+def free_limit(user, kind: str) -> int | None:
+    """Rows of `kind` this account may add. None is unlimited."""
+    return None if user["tier"] == "premium" else FREE_LIMITS[kind]
+
+
+def over_limit(kind: str, limit: int) -> HTTPException:
+    return HTTPException(
+        status.HTTP_403_FORBIDDEN,
+        f"The free plan covers {limit} {kind}. Contact us to upgrade and add more.",
+    )
 
 
 def verify_password(password: str, encoded: str) -> bool:

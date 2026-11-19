@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
 
 from app import analytics, exports
-from app.auth import current_user
+from app.auth import current_user, free_limit, over_limit
 from app.db_service.models import Breakdown
 from app.routes.deps import PAGE, PAGE_SIZE, SEARCH, download, found, many, store
 from app.schemas import BreakdownIn
@@ -87,7 +87,13 @@ async def create_breakdown(
     body: BreakdownIn, s: Store = Depends(store), user=Depends(current_user)
 ):
     record = breakdown_record(body, s)
-    await s.add_breakdown({**record, "entered_by": f"{user['id']} {user['name']}"})
+    limit = free_limit(user, "breakdowns")
+    try:
+        await s.add_breakdown(
+            {**record, "entered_by": f"{user['id']} {user['name']}"}, limit
+        )
+    except PermissionError:
+        raise over_limit("breakdowns", limit)
     return breakdown_saved(record)
 
 

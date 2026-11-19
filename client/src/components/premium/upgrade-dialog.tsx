@@ -15,7 +15,7 @@ import {
 const PERKS = [
   "OEE overview — availability, performance and quality",
   "PPC shift planning that OEE is calculated from",
-  "The asset register, with full edit access for managers",
+  "An unlimited asset register — the free plan covers a handful",
 ];
 
 export function UpgradeDialog({ open, onOpenChange }: any) {
@@ -36,8 +36,9 @@ export function UpgradeDialog({ open, onOpenChange }: any) {
           </span>
           <DialogTitle>Premium feature</DialogTitle>
           <DialogDescription>
-            Your account is on the free tier. Breakdown and production rejection
-            logging stay free — these are part of Premium:
+            Your account is on the free tier. Breakdown logging, production
+            rejections and a small asset register stay free — these are part of
+            Premium:
           </DialogDescription>
         </DialogHeader>
 

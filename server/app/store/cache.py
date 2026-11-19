@@ -47,8 +47,15 @@ class Store:
             await session.commit()
         await self.refresh()
 
-    async def add_asset(self, record: dict):
+    def _cap(self, frame, limit: int | None):
+        """Guard a row cap. Called inside self.lock and before the insert, so two
+        concurrent writes can't both slip past it."""
+        if limit is not None and len(frame) >= limit:
+            raise PermissionError(limit)
+
+    async def add_asset(self, record: dict, limit: int | None = None):
         async with self.lock:
+            self._cap(self.assets, limit)
             if self.has_asset(record["id"]):
                 raise KeyError(record["id"])
             sno = int(self.assets["sno"].max()) + 1 if len(self.assets) else 1
@@ -85,16 +92,20 @@ class Store:
                 await session.commit()
             await self.refresh()
 
-    async def add_breakdown(self, record: dict):
+    async def add_breakdown(self, record: dict, limit: int | None = None):
         async with self.lock:
+            self._cap(self.breakdowns, limit)
             await self.insert(Breakdown(**record))
 
-    async def add_rejection(self, record: dict):
+    async def add_rejection(self, record: dict, limit: int | None = None):
         async with self.lock:
+            self._cap(self.rejections, limit)
             await self.insert(Rejection(**record))
 
-    async def add_ppc(self, record: dict):
+    async def add_ppc(self, record: dict, limit: int | None = None):
         async with self.lock:
+            # ppc_entries is the stored rows; self.ppc is the derived slot view
+            self._cap(self.ppc_entries, limit)
             await self.insert(PpcEntry(**record))
 
     async def update(self, model, entry_id: int, record: dict):

@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
 
 from app import analytics, exports
-from app.auth import current_user
+from app.auth import current_user, free_limit, over_limit
 from app.db_service.models import Rejection
 from app.routes.deps import PAGE, PAGE_SIZE, SEARCH, download, found, many, store
 from app.schemas import RejectionIn
@@ -72,9 +72,14 @@ def get_rejection(entry_id: int, s: Store = Depends(store), _=Depends(current_us
 async def create_rejection(
     body: RejectionIn, s: Store = Depends(store), user=Depends(current_user)
 ):
-    await s.add_rejection(
-        {**rejection_record(body, s), "entered_by": f"{user['id']} {user['name']}"}
-    )
+    limit = free_limit(user, "rejections")
+    try:
+        await s.add_rejection(
+            {**rejection_record(body, s), "entered_by": f"{user['id']} {user['name']}"},
+            limit,
+        )
+    except PermissionError:
+        raise over_limit("rejections", limit)
     return rejection_saved(body)
 
 

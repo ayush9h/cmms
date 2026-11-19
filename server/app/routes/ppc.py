@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app import analytics
-from app.auth import current_user, require_premium
+from app.auth import current_user, free_limit, over_limit, require_premium
 from app.db_service.models import PpcEntry
 from app.routes.deps import store
 from app.schemas import PpcIn
@@ -54,7 +54,11 @@ def find_ppc(
 async def create_ppc(
     body: PpcIn, s: Store = Depends(store), user=Depends(current_user)
 ):
-    await s.add_ppc(ppc_record(body, s, user))
+    limit = free_limit(user, "PPC entries")
+    try:
+        await s.add_ppc(ppc_record(body, s, user), limit)
+    except PermissionError:
+        raise over_limit("PPC entries", limit)
     return ppc_saved(body)
 
 

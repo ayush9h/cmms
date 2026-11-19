@@ -3,8 +3,9 @@
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useAuth } from "@/auth/provider";
+import { UpgradeDialog } from "@/components/premium/upgrade-dialog";
 import { fmt } from "@/lib/format";
 import { postJson, putJson, query } from "@/lib/api";
 import { useJson } from "@/lib/hooks";
@@ -116,6 +117,7 @@ function AssetForm({ assetId }: any) {
       : "/api/assets?page_size=1",
   );
   const [state, dispatch] = useReducer(reducer, initial);
+  const [upgrade, setUpgrade] = useState(false);
   const { form, saving, error } = state;
 
   const existing = editing
@@ -123,6 +125,11 @@ function AssetForm({ assetId }: any) {
     : null;
   const missing = editing && assets.data && !existing;
   const nextId = editing ? null : assets.data?.next_id;
+  // the POST is capped server-side too; this is the same wall, reached earlier
+  const capped =
+    !editing &&
+    assets.data?.limit != null &&
+    assets.data.all >= assets.data.limit;
 
   // both deps are stable between renders, so each prefill runs once
   useEffect(() => {
@@ -205,6 +212,31 @@ function AssetForm({ assetId }: any) {
             Can’t reach the OPMAX server:{" "}
             {(options.error ?? assets.error).message}.
           </p>
+        ) : capped ? (
+          <ErrorState
+            title={`The free plan covers ${assets.data.limit} assets`}
+          >
+            <p>
+              Your register is full, so new assets need an upgrade. You can
+              still edit the {assets.data.all} already registered.
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              <button
+                type="button"
+                onClick={() => setUpgrade(true)}
+                className={buttonVariants()}
+              >
+                See what’s included
+              </button>
+              <Link
+                href="/assets"
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                Back to register
+              </Link>
+            </div>
+            <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
+          </ErrorState>
         ) : missing ? (
           <ErrorState title={`${assetId} is not in the asset register`}>
             <p>It may have been renamed or removed.</p>

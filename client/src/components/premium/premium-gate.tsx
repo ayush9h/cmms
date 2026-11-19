@@ -30,13 +30,13 @@ export function PremiumGate({ children }: any) {
     <>
       <PageHead
         title="Premium feature"
-        sub="Upgrade to unlock OEE analytics and the asset register."
+        sub="Upgrade to unlock OEE analytics."
       />
       <main className="px-[clamp(16px,2.5vw,28px)] pt-2 pb-10 transition-opacity">
         <ErrorState title="This page is part of Premium">
           <p>
-            Your account is on the free tier. Breakdown and production rejection
-            logging are still available to you.
+            Your account is on the free tier. Breakdown logging, production
+            rejections and the asset register are still available to you.
           </p>
           <div className="flex flex-wrap gap-2.5">
             <button

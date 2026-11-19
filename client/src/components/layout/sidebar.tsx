@@ -86,7 +86,7 @@ const NAV = [
       },
     ],
   },
-  { href: "/assets", label: "Assets", Icon: Box, premium: true },
+  { href: "/assets", label: "Assets", Icon: Box },
 ];
 const DESKTOP = "(min-width: 861px)";
 const ITEM =

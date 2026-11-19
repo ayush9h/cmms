@@ -2,8 +2,9 @@
 
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { useReducer, useRef } from "react";
+import { useReducer, useRef, useState } from "react";
 import { useAuth } from "@/auth/provider";
+import { UpgradeDialog } from "@/components/premium/upgrade-dialog";
 import { fmt, plural } from "@/lib/format";
 import { query } from "@/lib/api";
 import { useDebounced, useJson } from "@/lib/hooks";
@@ -52,6 +53,7 @@ function reducer(state: typeof INITIAL, action: any): typeof INITIAL {
 export function AssetRegister({ created, updated }: any) {
   const { isManager } = useAuth();
   const panel = useRef<any>(null);
+  const [upgrade, setUpgrade] = useState(false);
   const [{ nonce, q, area, cls, page, size }, dispatch] = useReducer(
     reducer,
     INITIAL,
@@ -64,6 +66,10 @@ export function AssetRegister({ created, updated }: any) {
   );
   const filtered = Boolean(search || area.length || cls.length);
   const flagged = updated || created;
+  // free accounts register up to `limit` assets; Premium sends limit: null
+  const limit = data?.limit ?? null;
+  const left = limit == null ? null : Math.max(0, limit - data.all);
+  const full = left === 0;
   const fields = [
     {
       key: "area",
@@ -92,19 +98,48 @@ export function AssetRegister({ created, updated }: any) {
         title="Asset register"
         sub={
           data && options.data
-            ? `${plural(data.all, "asset")} across ${plural(options.data.area.length, "shop")}`
+            ? `${plural(data.all, "asset")} across ${plural(options.data.area.length, "shop")}${
+                limit == null ? "" : ` · ${left} of ${limit} free slots left`
+              }`
             : "Loading…"
         }
       >
-        {isManager && (
-          <Link href="/assets/new" className={buttonVariants()}>
-            New asset
-          </Link>
-        )}
+        {isManager &&
+          (full ? (
+            <button
+              type="button"
+              onClick={() => setUpgrade(true)}
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              Asset limit reached
+            </button>
+          ) : (
+            <Link href="/assets/new" className={buttonVariants()}>
+              New asset
+            </Link>
+          ))}
       </PageHead>
       <main
         className={"px-[clamp(16px,2.5vw,28px)] pt-2 pb-10 transition-opacity"}
       >
+        {full && isManager && (
+          <p
+            className={
+              "mb-4 px-3.5 py-2.5 rounded-sm border border-line bg-panel-2 text-ink-2"
+            }
+            role="status"
+          >
+            The free plan covers {limit} assets. Editing stays open —{" "}
+            <button
+              type="button"
+              onClick={() => setUpgrade(true)}
+              className={buttonVariants({ variant: "link", size: "inline" })}
+            >
+              upgrade
+            </button>{" "}
+            to add more.
+          </p>
+        )}
         {flagged && (
           <p
             className={
@@ -294,6 +329,7 @@ export function AssetRegister({ created, updated }: any) {
           </Card>
         )}
       </main>
+      <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
     </>
   );
 }
