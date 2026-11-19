@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Menu,
   PanelLeftClose,
-  Lock,
   PanelLeftOpen,
   ClipboardClock,
   MonitorActivity,
@@ -20,7 +19,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "@/auth/provider";
-import { UpgradeDialog } from "@/components/premium/upgrade-dialog";
 import { Logo } from "@/components/layout/logo";
 import { APP_NAME } from "@/lib/constants";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -40,7 +38,6 @@ const NAV = [
         label: "Manufacturing Performance",
         hint: "OEE: availability, performance and quality",
         Icon: Gauge,
-        premium: true,
       },
       {
         href: "/",
@@ -61,7 +58,6 @@ const NAV = [
         label: "PPC Entry",
         hint: "Shift production data that OEE is calculated from",
         Icon: ClipboardList,
-        premium: true,
       },
       {
         href: "/rejections/new",
@@ -96,37 +92,7 @@ const ON =
 const OFF =
   "border-transparent font-medium text-ink-2 hover:bg-line hover:text-ink";
 
-// dot on the collapsed icon rail, padlock wherever the label is visible
-function LockMark({ collapsed }: any) {
-  return (
-    <>
-      {collapsed ? (
-        <span
-          aria-hidden="true"
-          className="absolute right-1 top-1 size-1.5 rounded-full bg-accent"
-        />
-      ) : (
-        <Lock
-          size={13}
-          strokeWidth={2}
-          aria-hidden="true"
-          className="ml-auto shrink-0 text-muted"
-        />
-      )}
-      <span className="sr-only">(Premium)</span>
-    </>
-  );
-}
-
-function NavGroup({
-  group,
-  path,
-  collapsed,
-  label,
-  locked,
-  onLocked,
-  isPremium,
-}: any) {
+function NavGroup({ group, path, collapsed, label }: any) {
   const id = useId();
   const root = useRef<any>(null);
   const inGroup =
@@ -154,19 +120,17 @@ function NavGroup({
     };
   }, [fly]);
 
-  const inline = !locked && !collapsed && open;
-  const childLocked = (c: any) => Boolean(c.premium) && !isPremium;
+  const inline = !collapsed && open;
   // the flyout belongs to the collapsed rail; everywhere else the group opens inline
-  const click = () =>
-    locked ? onLocked() : collapsed ? setFly((f) => !f) : setOpen((o) => !o);
+  const click = () => (collapsed ? setFly((f) => !f) : setOpen((o) => !o));
 
   return (
     <li className="relative min-w-0" ref={root}>
       <button
         type="button"
         onClick={click}
-        aria-expanded={locked ? undefined : collapsed ? fly : inline}
-        aria-controls={locked ? undefined : id}
+        aria-expanded={collapsed ? fly : inline}
+        aria-controls={id}
         title={collapsed ? group.label : undefined}
         className={`${ITEM} w-full ${collapsed ? "px-0" : "justify-start px-2.5"} ${inGroup ? ON : OFF}`}
       >
@@ -177,16 +141,12 @@ function NavGroup({
           className="shrink-0"
         />
         <span className={label}>{group.label}</span>
-        {locked ? (
-          <LockMark collapsed={collapsed} />
-        ) : (
-          <ChevronDown
-            size={15}
-            strokeWidth={1.8}
-            aria-hidden="true"
-            className={`${collapsed ? "hidden" : "block"} ml-auto text-muted transition-[rotate] duration-200 ease-snap ${inline ? "rotate-180" : ""}`}
-          />
-        )}
+        <ChevronDown
+          size={15}
+          strokeWidth={1.8}
+          aria-hidden="true"
+          className={`${collapsed ? "hidden" : "block"} ml-auto text-muted transition-[rotate] duration-200 ease-snap ${inline ? "rotate-180" : ""}`}
+        />
       </button>
 
       {inline && (
@@ -195,8 +155,7 @@ function NavGroup({
           className="grid min-w-0 gap-0.5 mt-1.5 mb-1 ml-[18px] border-l-2 border-line-strong"
         >
           {group.children.map((c) => {
-            const lock = childLocked(c);
-            const current = !lock && path === c.href;
+            const current = path === c.href;
             const cls = `relative flex w-full min-w-0 items-center gap-2 min-h-8 pl-3.5 pr-2.5 -ml-0.5 text-left text-[13.5px] whitespace-nowrap transition-colors ${
               current
                 ? "font-semibold text-accent before:absolute before:left-0 before:inset-y-1 before:w-0.5 before:rounded-full before:bg-accent"
@@ -211,40 +170,18 @@ function NavGroup({
                   className={`shrink-0 ${c.tone === "bd" ? "text-bd" : c.tone === "pr" ? "text-pr" : ""}`}
                 />
                 <span className="min-w-0 flex-1 truncate">{c.label}</span>
-                {lock && (
-                  <>
-                    <Lock
-                      size={12}
-                      strokeWidth={2}
-                      aria-hidden="true"
-                      className="ml-auto shrink-0 text-muted"
-                    />
-                    <span className="sr-only">(Premium)</span>
-                  </>
-                )}
               </>
             );
             return (
               <li key={c.href} className="min-w-0">
-                {lock ? (
-                  <button
-                    type="button"
-                    onClick={onLocked}
-                    title={c.label}
-                    className={cls}
-                  >
-                    {body}
-                  </button>
-                ) : (
-                  <Link
-                    href={c.href}
-                    title={c.label}
-                    aria-current={current ? "page" : undefined}
-                    className={cls}
-                  >
-                    {body}
-                  </Link>
-                )}
+                <Link
+                  href={c.href}
+                  title={c.label}
+                  aria-current={current ? "page" : undefined}
+                  className={cls}
+                >
+                  {body}
+                </Link>
               </li>
             );
           })}
@@ -262,8 +199,7 @@ function NavGroup({
             {group.label}
           </p>
           {group.children.map((c) => {
-            const lock = childLocked(c);
-            const current = !lock && path === c.href;
+            const current = path === c.href;
             const cls = `flex w-full items-start gap-3 p-2.5 rounded-sm text-left ${current ? "bg-shell" : "hover:bg-hover"}`;
             const body = (
               <>
@@ -273,35 +209,14 @@ function NavGroup({
                   <c.Icon size={16} strokeWidth={1.8} aria-hidden="true" />
                 </span>
                 <span className="grid">
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+                  <span className="text-sm font-semibold text-ink">
                     {c.label}
-                    {lock && (
-                      <>
-                        <Lock
-                          size={12}
-                          strokeWidth={2}
-                          aria-hidden="true"
-                          className="shrink-0 text-muted"
-                        />
-                        <span className="sr-only">(Premium)</span>
-                      </>
-                    )}
                   </span>
                   <span className="text-xs text-muted">{c.hint}</span>
                 </span>
               </>
             );
-            return lock ? (
-              <button
-                key={c.href}
-                type="button"
-                role="menuitem"
-                onClick={onLocked}
-                className={cls}
-              >
-                {body}
-              </button>
-            ) : (
+            return (
               <Link
                 key={c.href}
                 href={c.href}
@@ -327,18 +242,15 @@ const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
 
 export function Sidebar() {
   const path = usePathname();
-  const { user, logout, isPremium } = useAuth();
+  const { user, logout } = useAuth();
   const [railed, setRailed] = useState(false);
   const [wide, setWide] = useState(true);
   const [drawer, setDrawer] = useState(false);
-  const [upgrade, setUpgrade] = useState(false);
   const [width, setWidth] = useState(DEF_W);
   const aside = useRef<any>(null);
   const burger = useRef<any>(null);
   // the icon rail is a wide-layout mode; the mobile drawer is always expanded
   const collapsed = wide && railed;
-  // Premium options stay visible for free users, marked, and open the dialog
-  const lockedFor = (n: any) => Boolean(n.premium) && !isPremium;
 
   useEffect(() => {
     try {
@@ -544,7 +456,6 @@ export function Sidebar() {
             </p>
             <ul className="grid grid-cols-[minmax(0,1fr)] gap-0.5">
               {NAV.map((n) => {
-                const locked = lockedFor(n);
                 const heading = n.heading && (
                   <li
                     key={`${n.label}-heading`}
@@ -562,9 +473,6 @@ export function Sidebar() {
                         path={path}
                         collapsed={collapsed}
                         label={label}
-                        locked={locked}
-                        onLocked={() => setUpgrade(true)}
-                        isPremium={isPremium}
                       />
                     </Fragment>
                   );
@@ -579,33 +487,21 @@ export function Sidebar() {
                       className="shrink-0"
                     />
                     <span className={label}>{name}</span>
-                    {locked && <LockMark collapsed={collapsed} />}
                   </>
                 );
-                const cls = `${ITEM} w-full ${collapsed ? "px-0" : "justify-start px-2.5"} ${current && !locked ? ON : OFF}`;
+                const cls = `${ITEM} w-full ${collapsed ? "px-0" : "justify-start px-2.5"} ${current ? ON : OFF}`;
                 return (
                   <Fragment key={href}>
                     {heading}
                     <li>
-                      {locked ? (
-                        <button
-                          type="button"
-                          onClick={() => setUpgrade(true)}
-                          title={tip(name)}
-                          className={cls}
-                        >
-                          {inner}
-                        </button>
-                      ) : (
-                        <Link
-                          href={href}
-                          title={tip(name)}
-                          aria-current={current ? "page" : undefined}
-                          className={cls}
-                        >
-                          {inner}
-                        </Link>
-                      )}
+                      <Link
+                        href={href}
+                        title={tip(name)}
+                        aria-current={current ? "page" : undefined}
+                        className={cls}
+                      >
+                        {inner}
+                      </Link>
                     </li>
                   </Fragment>
                 );
@@ -619,7 +515,6 @@ export function Sidebar() {
         >
           <UserMenu user={user} logout={logout} collapsed={collapsed} />
         </div>
-        <UpgradeDialog open={upgrade} onOpenChange={setUpgrade} />
       </aside>
     </>
   );

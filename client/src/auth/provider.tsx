@@ -38,7 +38,6 @@ export function AuthProvider({ children }: any) {
     () => ({
       ...state,
       isManager: state.user?.role === "manager",
-      isPremium: state.user?.tier === "premium",
       login: async (userId: string, password: string) => {
         const user = await postJson("/api/auth/login", {
           user_id: userId,

@@ -113,11 +113,3 @@ def require_manager(user=Depends(current_user)):
         )
     return user
 
-
-def require_premium(user=Depends(current_user)):
-    if user["tier"] != "premium":
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            "This is a Premium feature. Contact us to upgrade your account.",
-        )
-    return user

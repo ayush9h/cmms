@@ -12,10 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// Nothing is locked any more: Premium lifts the free plan's row allowances.
+// The exact numbers come from the API, so they are not repeated here.
 const PERKS = [
-  "OEE overview — availability, performance and quality",
-  "PPC shift planning that OEE is calculated from",
-  "An unlimited asset register — the free plan covers a handful",
+  "An unlimited asset register",
+  "Unlimited breakdown and rejection logging",
+  "Unlimited PPC entries behind the OEE numbers",
 ];
 
 export function UpgradeDialog({ open, onOpenChange }: any) {
@@ -34,11 +36,10 @@ export function UpgradeDialog({ open, onOpenChange }: any) {
           >
             <Sparkles size={20} strokeWidth={1.8} />
           </span>
-          <DialogTitle>Premium feature</DialogTitle>
+          <DialogTitle>Upgrade to Premium</DialogTitle>
           <DialogDescription>
-            Your account is on the free tier. Breakdown logging, production
-            rejections and a small asset register stay free — these are part of
-            Premium:
+            Your account is on the free tier. Every page is open to you — only
+            how much you can record is capped. Premium lifts that:
           </DialogDescription>
         </DialogHeader>
 

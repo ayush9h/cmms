@@ -3,14 +3,13 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app import analytics
-from app.auth import current_user, free_limit, over_limit, require_premium
+from app.auth import current_user, free_limit, over_limit
 from app.db_service.models import PpcEntry
 from app.routes.deps import store
 from app.schemas import PpcIn
 from app.store import Store
 
-# PPC feeds OEE, both Premium
-router = APIRouter(prefix="/ppc", dependencies=[Depends(require_premium)])
+router = APIRouter(prefix="/ppc")
 
 
 def ppc_record(body: PpcIn, s: Store, user, entry_id=None):
